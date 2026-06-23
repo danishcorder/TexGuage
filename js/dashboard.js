@@ -2,6 +2,7 @@ const reportState = {
   department: '',
   records: [],
   isSimplex: false,
+  role: 'operator',
   sortColumn: null,
   sortDirection: 1,
   filters: {
@@ -42,38 +43,122 @@ function setMobileToggle() {
   const toggleBtn = document.getElementById('mobileToggle');
   const sidebar = document.getElementById('sidebar');
   if (!toggleBtn || !sidebar) return;
-  toggleBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('open');
-  });
+  toggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
   document.addEventListener('click', (e) => {
     if (window.innerWidth <= 768 && sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== toggleBtn) {
       sidebar.classList.remove('open');
     }
   });
-  window.addEventListener('resize', () => {
-    if (window.innerWidth > 768) {
-      sidebar.classList.remove('open');
-    }
-  });
+  window.addEventListener('resize', () => { if (window.innerWidth > 768) sidebar.classList.remove('open'); });
 }
 
 function setDefaultDate(target) {
   if (!target) return;
-  const today = new Date().toISOString().slice(0, 10);
-  target.value = today;
+  target.value = new Date().toISOString().slice(0, 10);
 }
 
-// Get only the sample values that actually have data entered (value > 0)
 function getValidSampleValues() {
-  const sampleInputs = [
-    document.getElementById('s1'), document.getElementById('s2'), document.getElementById('s3'),
-    document.getElementById('s4'), document.getElementById('s5'), document.getElementById('s6')
-  ];
-  return sampleInputs
-    .map(input => Number(input.value) || 0)
+  return ['s1','s2','s3','s4','s5','s6']
+    .map(id => Number(document.getElementById(id)?.value) || 0)
     .filter(v => v > 0);
 }
 
+// =================== ROLE MANAGEMENT ===================
+function setRole(role) {
+  reportState.role = role;
+  document.getElementById('roleOperator').className = role === 'operator' ? 'primary' : 'secondary';
+  document.getElementById('roleManager').className = role === 'manager' ? 'primary' : 'secondary';
+  document.getElementById('roleIndicator').textContent = role === 'operator' ? '🟢 Operator View Active' : '📈 Manager View Active';
+  
+  const panel = document.getElementById('managerPanel');
+  if (panel) panel.style.display = role === 'manager' ? 'grid' : 'none';
+  
+  const flow = document.getElementById('processFlowSection');
+  if (flow) flow.style.display = role === 'manager' ? 'block' : 'none';
+  
+  localStorage.setItem('texgauge_role', role);
+}
+
+// =================== LIVE MODE ===================
+function toggleLiveMode() {
+  const btn = document.getElementById('liveModeBtn');
+  if (LiveSimulation.isRunning) {
+    LiveSimulation.stop();
+    btn.innerHTML = '⏸ Live Mode: OFF';
+    btn.style.background = 'rgba(255,255,255,0.05)';
+  } else {
+    LiveSimulation.start();
+    btn.innerHTML = '▶ Live Mode: ON';
+    btn.style.background = 'rgba(47,156,77,0.3)';
+    btn.style.color = '#4caf50';
+  }
+}
+
+// =================== ALERT PANEL ===================
+function updateAlertPanel() {
+  const panel = document.getElementById('alertPanel');
+  const badge = document.getElementById('alertBadge');
+  if (!panel) return;
+  
+  const active = AlertSystem.getActiveAlerts();
+  const counts = AlertSystem.getCounts();
+  
+  if (badge) badge.textContent = counts.total;
+  if (badge) badge.style.background = counts.critical > 0 ? '#d23f3f' : (counts.warning > 0 ? '#e8a838' : '#2f9c4d');
+
+  if (active.length === 0) {
+    panel.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:20px;">No active alerts. All systems normal. 🟢</p>';
+    return;
+  }
+
+  panel.innerHTML = active.slice(0, 20).map(a => `
+    <div style="padding:10px 14px;margin-bottom:6px;border-radius:8px;background:${a.type === 'critical' ? 'var(--danger-light)' : 'var(--warning-light)'};border-left:4px solid ${a.type === 'critical' ? 'var(--danger)' : 'var(--warning)'};display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="AlertSystem.acknowledge(${a.id});updateAlertPanel();">
+      <span style="font-size:1.2rem;">${a.icon}</span>
+      <div style="flex:1;">
+        <div style="font-weight:600;font-size:0.85rem;">${a.title}</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);">${a.message}</div>
+      </div>
+      <span style="font-size:0.7rem;color:var(--text-muted);">${new Date(a.timestamp).toLocaleTimeString()}</span>
+    </div>
+  `).join('');
+}
+
+// Subscribe to alerts
+document.addEventListener('DOMContentLoaded', () => {
+  AlertSystem.subscribe(() => updateAlertPanel());
+});
+
+// =================== KPI UPDATE ===================
+function updateKPI() {
+  const depts = ['Carding', 'Breaker', 'Finisher', 'Simplex'];
+  let totalSamples = 0;
+  let totalRejected = 0;
+  let totalCv = 0;
+  let cvCount = 0;
+
+  depts.forEach(d => {
+    const records = loadRecords(d);
+    totalSamples += records.length;
+    totalRejected += records.filter(r => r.status === 'REJECTED').length;
+    records.forEach(r => {
+      if (Number(r.cv) > 0) { totalCv += Number(r.cv); cvCount++; }
+    });
+  });
+
+  const avgCv = cvCount > 0 ? (totalCv / cvCount) : 0;
+  const rejectRate = totalSamples > 0 ? ((totalRejected / totalSamples) * 100) : 0;
+  let qualityIndex = 100 - (avgCv * 2) - rejectRate;
+  qualityIndex = Math.max(0, Math.min(100, qualityIndex));
+
+  const el = id => document.getElementById(id);
+  if (el('kpiAvgCv')) el('kpiAvgCv').textContent = round(avgCv) + '%';
+  if (el('kpiQuality')) el('kpiQuality').textContent = round(qualityIndex) + '%';
+  if (el('kpiQuality')) el('kpiQuality').style.color = qualityIndex > 80 ? 'var(--success)' : (qualityIndex > 60 ? 'var(--warning)' : 'var(--danger)');
+  if (el('kpiTotal')) el('kpiTotal').textContent = totalSamples;
+  if (el('kpiReject')) el('kpiReject').textContent = round(rejectRate) + '%';
+}
+
+// =================== DEPARTMENT PAGES ===================
 function initializeDepartmentPage(department) {
   reportState.department = department;
   reportState.isSimplex = false;
@@ -83,19 +168,48 @@ function initializeDepartmentPage(department) {
 
   const inputs = Array.from(document.querySelectorAll('.entry-card input[type="number"]'));
   inputs.forEach(input => input.addEventListener('input', refreshCalculations));
-  document.getElementById('shift').addEventListener('change', refreshCalculations);
-  document.getElementById('machine').addEventListener('change', refreshCalculations);
-  document.getElementById('targetWeight').addEventListener('input', refreshCalculations);
-  document.getElementById('gMin').addEventListener('input', refreshCalculations);
-  document.getElementById('gMax').addEventListener('input', refreshCalculations);
+  ['shift','machine','targetWeight','gMin','gMax'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', refreshCalculations);
+    if (el && (id === 'targetWeight' || id === 'gMin' || id === 'gMax')) el.addEventListener('input', refreshCalculations);
+  });
 
-  document.getElementById('saveBtn').addEventListener('click', () => saveRecord(department, false));
-  document.getElementById('excelBtn').addEventListener('click', () => exportDepartmentToExcel(department, loadRecords(department)));
+  document.getElementById('saveBtn')?.addEventListener('click', () => saveRecord(department, false));
+  document.getElementById('excelBtn')?.addEventListener('click', () => exportDepartmentToExcel(department, loadRecords(department)));
 
-  document.getElementById('searchText').addEventListener('input', e => { reportState.filters.text = e.target.value; updateReportTable(); });
-  document.getElementById('filterDate').addEventListener('change', e => { reportState.filters.date = e.target.value; updateReportTable(); });
-  document.getElementById('filterShift').addEventListener('change', e => { reportState.filters.shift = e.target.value; updateReportTable(); });
-  document.getElementById('filterMachine').addEventListener('change', e => { reportState.filters.machine = e.target.value; updateReportTable(); });
+  // Scale connection
+  const scaleBtn = document.getElementById('scaleBtn');
+  if (scaleBtn) {
+    scaleBtn.addEventListener('click', async () => {
+      const result = await ScaleManager.connect();
+      scaleBtn.textContent = result.success ? '🔗 Scale Connected' : '❌ Scale Failed';
+      scaleBtn.style.background = result.success ? 'var(--success)' : 'var(--danger)';
+    });
+    ScaleManager.onWeightRead = (weight) => {
+      // Auto-fill first empty sample
+      for (let i = 1; i <= 6; i++) {
+        const input = document.getElementById(`s${i}`);
+        if (input && (input.value === '' || Number(input.value) === 0)) {
+          input.value = weight;
+          input.dispatchEvent(new Event('input'));
+          break;
+        }
+      }
+    };
+  }
+
+  // Filters
+  ['searchText','filterDate','filterShift','filterMachine'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      const eventType = id === 'searchText' ? 'input' : 'change';
+      const key = id.replace('filter','').toLowerCase();
+      el.addEventListener(eventType, e => {
+        reportState.filters[key === 'searchtext' ? 'text' : key === 'filtershift' ? 'shift' : key === 'filtermachine' ? 'machine' : key === 'filterdate' ? 'date' : key] = e.target.value;
+        updateReportTable();
+      });
+    }
+  });
 
   reportState.records = loadRecords(department);
   refreshCalculations();
@@ -111,19 +225,26 @@ function initializeSimplexPage() {
 
   const inputs = Array.from(document.querySelectorAll('.entry-card input[type="number"]'));
   inputs.forEach(input => input.addEventListener('input', refreshCalculations));
-  document.getElementById('shift').addEventListener('change', refreshCalculations);
-  document.getElementById('machine').addEventListener('change', refreshCalculations);
-  document.getElementById('lengthYards').addEventListener('input', refreshCalculations);
-  document.getElementById('gMin').addEventListener('input', refreshCalculations);
-  document.getElementById('gMax').addEventListener('input', refreshCalculations);
+  ['shift','machine','hankFactor','lengthYards','gMin','gMax'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener(el.type === 'number' ? 'input' : 'change', refreshCalculations);
+    }
+  });
 
-  document.getElementById('saveBtn').addEventListener('click', () => saveRecord('Simplex', true));
-  document.getElementById('excelBtn').addEventListener('click', () => exportDepartmentToExcel('Simplex', loadRecords('Simplex')));
+  document.getElementById('saveBtn')?.addEventListener('click', () => saveRecord('Simplex', true));
+  document.getElementById('excelBtn')?.addEventListener('click', () => exportDepartmentToExcel('Simplex', loadRecords('Simplex')));
 
-  document.getElementById('searchText').addEventListener('input', e => { reportState.filters.text = e.target.value; updateReportTable(); });
-  document.getElementById('filterDate').addEventListener('change', e => { reportState.filters.date = e.target.value; updateReportTable(); });
-  document.getElementById('filterShift').addEventListener('change', e => { reportState.filters.shift = e.target.value; updateReportTable(); });
-  document.getElementById('filterMachine').addEventListener('change', e => { reportState.filters.machine = e.target.value; updateReportTable(); });
+  ['searchText','filterDate','filterShift','filterMachine'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener(id === 'searchText' ? 'input' : 'change', e => {
+        const keyMap = { searchText: 'text', filterDate: 'date', filterShift: 'shift', filterMachine: 'machine' };
+        reportState.filters[keyMap[id]] = e.target.value;
+        updateReportTable();
+      });
+    }
+  });
 
   reportState.records = loadRecords('Simplex');
   refreshCalculations();
@@ -134,109 +255,94 @@ function refreshCalculations() {
   const sampleValues = getValidSampleValues();
   const sampleCount = sampleValues.length;
 
-  // Calculate Mean - display 2 decimal places
   const meanValue = sampleCount > 0 ? average(sampleValues) : 0;
   const meanDisplay = roundMean(meanValue);
-
-  // Calculate Population Standard Deviation - display 3 decimal places
   const sdValue = (sampleCount > 1) ? standardDeviation(sampleValues) : 0;
   const sdDisplay = roundSD(sdValue);
-
-  // Calculate CV% = (SD / Mean) × 100 - display 2 decimal places
   const cvValue = sampleCount > 0 ? cvPercent(sampleValues) : 0;
   const cvDisplay = roundCV(cvValue);
 
-  // G/Y (%) = (Weight_grams × 15.432) / 8
-  // For Carding/Breaker/Finisher: use targetGrams (replaces old targetWeight)
-  // For Simplex: G/Y is the Hank Roving validation value
   const targetGrams = Number(document.getElementById('targetWeight')?.value || 0);
-  const gMin = Number(document.getElementById('gMin').value || 0);
-  const gMax = Number(document.getElementById('gMax').value || 0);
+  const gMinDisplay = Number(document.getElementById('gMin')?.value || 0);
+  const gMaxDisplay = Number(document.getElementById('gMax')?.value || 0);
 
   let gValue = 0;
   let gDisplay = '0.00';
-
   if (reportState.isSimplex) {
-    // Hank Roving = (Length_Yards × 453.6) / (Weight_grams × 840)
     const lengthYards = Number(document.getElementById('lengthYards')?.value || 1);
     gValue = hankRovingValue(meanValue, lengthYards);
     gDisplay = roundHank(gValue);
   } else {
-    // G/Y (%) = (Weight_grams × 15.432) / 8
     gValue = gyPercent(meanValue, targetGrams);
     gDisplay = roundGY(gValue);
   }
 
-  // Evaluate range
-  const status = evaluateRange(gValue, gMin, gMax);
-
-  // Validate fields - need at least 2 samples
+  const status = evaluateRange(gValue, gMinDisplay, gMaxDisplay);
   const valid = validateEntryFields({
-    date: document.getElementById('date').value,
-    shift: document.getElementById('shift').value,
-    machine: document.getElementById('machine').value,
-    operator: document.getElementById('operator').value,
+    date: document.getElementById('date')?.value,
+    shift: document.getElementById('shift')?.value,
+    machine: document.getElementById('machine')?.value,
+    operator: document.getElementById('operator')?.value,
     samples: sampleValues,
     minSamples: 2
   });
 
-  // Update display with correct decimal places
-  document.getElementById('avgWeight').textContent = meanDisplay;
-  if (!reportState.isSimplex) {
-    document.getElementById('sdValue').textContent = sdDisplay;
-  }
-  document.getElementById('cvValue').textContent = cvDisplay;
-  document.getElementById('gValue').textContent = gDisplay;
+  const avgEl = document.getElementById('avgWeight');
+  if (avgEl) avgEl.textContent = meanDisplay;
+  const sdEl = document.getElementById('sdValue');
+  if (sdEl && !reportState.isSimplex) sdEl.textContent = sdDisplay;
+  const cvEl = document.getElementById('cvValue');
+  if (cvEl) cvEl.textContent = cvDisplay;
+  const gEl = document.getElementById('gValue');
+  if (gEl) gEl.textContent = gDisplay;
 
   const statusMessage = document.getElementById('statusMessage');
-  if (sampleCount < 2) {
-    statusMessage.innerHTML = `ℹ️ Enter at least 2 samples (currently ${sampleCount} sample${sampleCount !== 1 ? 's' : ''})`;
-    statusMessage.style.color = '#888';
-    statusMessage.dataset.status = '';
-    document.getElementById('saveBtn').disabled = true;
-    return;
+  if (statusMessage) {
+    if (sampleCount < 2) {
+      statusMessage.innerHTML = `ℹ️ Enter at least 2 samples (currently ${sampleCount} sample${sampleCount !== 1 ? 's' : ''})`;
+      statusMessage.style.color = '#888';
+      statusMessage.dataset.status = '';
+    } else {
+      const emoji = status.status === 'ACCEPTED' ? '🟢' : '🔴';
+      statusMessage.innerHTML = valid ? `${emoji} ${status.status}: ${status.message} (${sampleCount} samples)` : '⚠️ Complete all fields.';
+      statusMessage.style.color = status.color;
+      statusMessage.dataset.status = valid ? status.status : '';
+    }
   }
-  const emoji = status.status === 'ACCEPTED' ? '🟢' : '🔴';
-  statusMessage.innerHTML = valid ? `${emoji} ${status.status}: ${status.message} (${sampleCount} samples)` : '⚠️ Complete all fields before saving.';
-  statusMessage.style.color = status.color;
-  statusMessage.dataset.status = valid ? status.status : '';
-  document.getElementById('saveBtn').disabled = !valid || !status.accepted;
+  
+  const saveBtn = document.getElementById('saveBtn');
+  if (saveBtn) saveBtn.disabled = !valid || (sampleCount >= 2 && !status.accepted);
 }
 
 function saveRecord(department, isSimplex) {
   const sampleValues = getValidSampleValues();
   const sampleCount = sampleValues.length;
-
   const meanValue = sampleCount > 0 ? average(sampleValues) : 0;
   const sdValue = (sampleCount > 1) ? standardDeviation(sampleValues) : 0;
   const cvValue = sampleCount > 0 ? cvPercent(sampleValues) : 0;
-
   const targetGrams = Number(document.getElementById('targetWeight')?.value || 0);
-  const gMin = Number(document.getElementById('gMin').value || 0);
-  const gMax = Number(document.getElementById('gMax').value || 0);
+  const gMin = Number(document.getElementById('gMin')?.value || 0);
+  const gMax = Number(document.getElementById('gMax')?.value || 0);
 
   let gValue = 0;
   if (isSimplex) {
-    const lengthYards = Number(document.getElementById('lengthYards')?.value || 1);
-    gValue = hankRovingValue(meanValue, lengthYards);
+    gValue = hankRovingValue(meanValue, Number(document.getElementById('lengthYards')?.value || 1));
   } else {
     gValue = gyPercent(meanValue, targetGrams);
   }
-
   const status = evaluateRange(gValue, gMin, gMax);
 
   const record = {
-    date: document.getElementById('date').value,
-    shift: document.getElementById('shift').value,
-    machine: document.getElementById('machine').value,
-    operator: document.getElementById('operator').value,
+    date: document.getElementById('date')?.value,
+    shift: document.getElementById('shift')?.value,
+    machine: document.getElementById('machine')?.value,
+    operator: document.getElementById('operator')?.value,
     samples: sampleValues,
-    sampleCount: sampleCount,
+    sampleCount,
     average: roundMean(meanValue),
     sd: roundSD(sdValue),
     cv: roundCV(cvValue),
     g: isSimplex ? roundHank(gValue) : roundGY(gValue),
-    gy: roundGY(gValue),
     status: status.status,
     targetWeight: targetGrams || undefined,
     lengthYards: isSimplex ? Number(document.getElementById('lengthYards')?.value || 1) : undefined,
@@ -250,82 +356,77 @@ function saveRecord(department, isSimplex) {
   updateReportTable();
   clearInputs(isSimplex);
   refreshCalculations();
+  
+  // Evaluate alert
+  AlertSystem.evaluate(record, department);
+  updateAlertPanel();
 }
 
 function clearInputs(isSimplex) {
-  document.getElementById('operator').value = '';
-  if (document.getElementById('count')) document.getElementById('count').value = '';
+  const op = document.getElementById('operator');
+  if (op) op.value = '';
+  const cnt = document.getElementById('count');
+  if (cnt) cnt.value = '';
   document.querySelectorAll('.entry-card input[type="number"]').forEach(input => {
-    if (input.id !== 'targetWeight' && input.id !== 'gMin' && input.id !== 'gMax' && input.id !== 'lengthYards' && input.id !== 'hankFactor') {
-      input.value = '';
-    }
+    if (!['targetWeight','gMin','gMax','lengthYards','hankFactor'].includes(input.id)) input.value = '';
   });
 }
 
 function clearAllInputs() {
   document.querySelectorAll('.entry-card input, .entry-card select').forEach(el => {
     if (el.type === 'text' || el.type === 'number') {
-      if (el.id === 'gMin' || el.id === 'gMax' || el.id === 'targetWeight' || el.id === 'lengthYards' || el.id === 'hankFactor') return;
+      if (['gMin','gMax','targetWeight','lengthYards','hankFactor'].includes(el.id)) return;
       el.value = '';
     }
     if (el.tagName === 'SELECT') el.selectedIndex = 0;
   });
-  if (document.getElementById('operator')) document.getElementById('operator').value = '';
-  if (document.getElementById('count')) document.getElementById('count').value = '';
+  const op = document.getElementById('operator');
+  if (op) op.value = '';
+  const cnt = document.getElementById('count');
+  if (cnt) cnt.value = '';
   refreshCalculations();
 }
 
 function updateReportTable() {
   const tbody = document.querySelector('#reportTable tbody');
   if (!tbody) return;
+  
   const filtered = reportState.records.filter(record => {
     const text = reportState.filters.text.toLowerCase();
-    const matchesText = text === '' || [record.operator, record.machine, record.shift, record.date].some(field => String(field).toLowerCase().includes(text));
-    const matchesDate = !reportState.filters.date || record.date === reportState.filters.date;
-    const matchesShift = !reportState.filters.shift || record.shift === reportState.filters.shift;
-    const matchesMachine = !reportState.filters.machine || record.machine === reportState.filters.machine;
-    return matchesText && matchesDate && matchesShift && matchesMachine;
+    const matchText = text === '' || [record.operator, record.machine, record.shift, record.date].some(f => String(f).toLowerCase().includes(text));
+    const matchDate = !reportState.filters.date || record.date === reportState.filters.date;
+    const matchShift = !reportState.filters.shift || record.shift === reportState.filters.shift;
+    const matchMachine = !reportState.filters.machine || record.machine === reportState.filters.machine;
+    return matchText && matchDate && matchShift && matchMachine;
   });
 
   const sorted = [...filtered];
   if (reportState.sortColumn !== null) {
+    const keys = ['date','shift','machine','operator','samples','average','sd','cv','g','status'];
     sorted.sort((a, b) => {
-      const keys = ['date', 'shift', 'machine', 'operator', 'samples', 'average', 'sd', 'cv', 'g', 'status'];
-      const key = keys[reportState.sortColumn];
-      const aValue = a[key] ?? '';
-      const bValue = b[key] ?? '';
-      if (typeof aValue === 'number' && typeof bValue === 'number') return (aValue - bValue) * reportState.sortDirection;
-      return String(aValue).localeCompare(String(bValue)) * reportState.sortDirection;
+      const k = keys[reportState.sortColumn];
+      const av = a[k] ?? '', bv = b[k] ?? '';
+      if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * reportState.sortDirection;
+      return String(av).localeCompare(String(bv)) * reportState.sortDirection;
     });
   }
 
   tbody.innerHTML = sorted.map(record => {
-    const sampleText = Array.isArray(record.samples) ? record.samples.join(' | ') : record.samples;
-    const countLabel = record.sampleCount ? ` (${record.sampleCount})` : '';
+    const sampleText = Array.isArray(record.samples) ? record.samples.filter(s => s > 0).join(' | ') : record.samples;
     const statusColor = record.status === 'ACCEPTED' ? '#2f9c4d' : '#d23f3f';
+    
     if (reportState.isSimplex) {
       return `<tr>
-        <td>${record.date}</td>
-        <td>${record.shift}</td>
-        <td>${record.machine}</td>
-        <td>${record.operator}</td>
-        <td>${record.count || ''}</td>
-        <td>${record.average}</td>
-        <td>${record.cv}</td>
-        <td>${record.g}</td>
+        <td>${record.date}</td><td>${record.shift}</td><td>${record.machine}</td>
+        <td>${record.operator}</td><td>${record.count || ''}</td>
+        <td>${record.average}</td><td>${record.cv}</td><td>${record.g}</td>
         <td><span class="status-badge" style="background:${statusColor};">${record.status}</span></td>
       </tr>`;
     }
     return `<tr>
-      <td>${record.date}</td>
-      <td>${record.shift}</td>
-      <td>${record.machine}</td>
-      <td>${record.operator}</td>
-      <td title="${sampleText}">${sampleText}${countLabel}</td>
-      <td>${record.average}</td>
-      <td>${record.sd}</td>
-      <td>${record.cv}</td>
-      <td>${record.g}</td>
+      <td>${record.date}</td><td>${record.shift}</td><td>${record.machine}</td>
+      <td>${record.operator}</td><td title="${sampleText}">${sampleText}</td>
+      <td>${record.average}</td><td>${record.sd}</td><td>${record.cv}</td><td>${record.g}</td>
       <td><span class="status-badge" style="background:${statusColor};">${record.status}</span></td>
     </tr>`;
   }).join('');
@@ -337,20 +438,47 @@ function sortTable(columnIndex) {
   updateReportTable();
 }
 
+// =================== DASHBOARD ===================
 function initializeDashboard() {
   setThemeToggle();
   setMobileToggle();
-  const departments = ['Carding', 'Breaker', 'Finisher', 'Simplex'];
-  const allRecords = departments.reduce((acc, department) => {
-    const records = loadRecords(department);
-    if (records.length > 0) {
-      acc[department] = records;
-    }
-    return acc;
-  }, {});
+  
+  // Restore role preference
+  const savedRole = localStorage.getItem('texgauge_role') || 'operator';
+  setRole(savedRole);
+  updateAlertPanel();
 
+  // Subscribe live simulation to refresh dashboard
+  LiveSimulation.subscribe((event, data) => {
+    if (event === 'data') {
+      // Auto-refresh dashboard components
+      const allRecords = {};
+      ['Carding','Breaker','Finisher','Simplex'].forEach(d => {
+        const r = loadRecords(d);
+        if (r.length > 0) allRecords[d] = r;
+      });
+      buildSummaryCards(allRecords);
+      updateKPI();
+      updateAlertPanel();
+      // Destroy old charts and rebuild
+      Chart.instances?.forEach(c => c.destroy());
+      buildDashboardCharts(allRecords);
+    }
+  });
+
+  // Initial load
+  const allRecords = {};
+  ['Carding','Breaker','Finisher','Simplex'].forEach(d => {
+    const r = loadRecords(d);
+    if (r.length > 0) allRecords[d] = r;
+  });
   buildSummaryCards(allRecords);
+  updateKPI();
   buildDashboardCharts(allRecords);
+  
+  // Check if we should auto-start live simulation
+  const liveState = localStorage.getItem('texgauge_live');
+  if (liveState === 'on') toggleLiveMode();
 }
 
 function buildSummaryCards(data) {
@@ -358,9 +486,9 @@ function buildSummaryCards(data) {
   if (!container) return;
 
   if (Object.keys(data).length === 0) {
-    container.innerHTML = `<article class="metric-card" style="grid-column: 1 / -1;">
+    container.innerHTML = `<article class="metric-card" style="grid-column:1/-1;">
       <h3>📊 No Data Yet</h3>
-      <p style="color: var(--text-muted);">Enter data from department pages to see summary here.</p>
+      <p style="color:var(--text-muted);">Enable Live Mode or enter data from department pages.</p>
     </article>`;
     return;
   }
@@ -368,14 +496,16 @@ function buildSummaryCards(data) {
   container.innerHTML = Object.entries(data).map(([department, records]) => {
     const accepted = records.filter(r => r.status === 'ACCEPTED').length;
     const rejected = records.filter(r => r.status === 'REJECTED').length;
-    const avgCV = records.reduce((sum, r) => sum + Number(r.cv), 0) / records.length || 0;
-    const avgG = records.reduce((sum, r) => sum + Number(r.g), 0) / records.length || 0;
+    const avgCV = records.reduce((s, r) => s + Number(r.cv), 0) / records.length || 0;
+    const avgG = records.reduce((s, r) => s + Number(r.g), 0) / records.length || 0;
+    const pct = records.length > 0 ? round((accepted / records.length) * 100) : 0;
     const statusIcon = rejected === 0 ? '🟢' : (rejected > accepted ? '🔴' : '🟡');
-    const valueLabel = department === 'Simplex' ? 'Avg Hank Roving' : 'Avg G/Y%';
+    const valueLabel = department === 'Simplex' ? 'Avg Hank' : 'Avg G/Y%';
+    
     return `<article class="metric-card">
       <h3>${department} ${statusIcon}</h3>
       <div class="metric-row"><span>Total Samples</span><strong>${records.length}</strong></div>
-      <div class="metric-row"><span>✅ Accepted</span><strong>${accepted}</strong></div>
+      <div class="metric-row"><span>✅ Accepted</span><strong>${accepted} (${pct}%)</strong></div>
       <div class="metric-row"><span>❌ Rejected</span><strong>${rejected}</strong></div>
       <div class="metric-row"><span>📈 Avg CV%</span><strong>${round(avgCV)}%</strong></div>
       <div class="metric-row"><span>📊 ${valueLabel}</span><strong>${round(avgG)}</strong></div>
@@ -388,33 +518,45 @@ function buildDashboardCharts(data) {
   if (allData.length === 0) return;
 
   const dailyLabels = [...new Set(allData.map(r => r.date))].sort();
-  const gTrend = dailyLabels.map(date => {
-    const values = allData.filter(r => r.date === date).map(r => Number(r.g));
-    return values.length ? round(average(values)) : 0;
+  
+  const gTrend = dailyLabels.map(d => {
+    const vals = allData.filter(r => r.date === d).map(r => Number(r.g));
+    return vals.length ? round(average(vals)) : 0;
   });
-  const cvTrend = dailyLabels.map(date => {
-    const values = allData.filter(r => r.date === date).map(r => Number(r.cv));
-    return values.length ? round(average(values)) : 0;
-  });
-  const machineLabels = [...new Set(allData.map(r => r.machine))].sort();
-  const machinePerf = machineLabels.map(machine => {
-    const values = allData.filter(r => r.machine === machine).map(r => Number(r.g));
-    return values.length ? round(average(values)) : 0;
-  });
-  const deptLabels = Object.keys(data);
-  const deptAverageG = deptLabels.map(dep => {
-    const values = data[dep].map(r => Number(r.g));
-    return values.length ? round(average(values)) : 0;
-  });
-  const rejectionTrend = dailyLabels.map(date => {
-    return allData.filter(r => r.date === date && r.status === 'REJECTED').length;
+  const cvTrend = dailyLabels.map(d => {
+    const vals = allData.filter(r => r.date === d).map(r => Number(r.cv));
+    return vals.length ? round(average(vals)) : 0;
   });
 
-  renderChart('gTrendChart', 'Daily G/Y% Trend', dailyLabels, gTrend, 'rgba(45, 108, 223, 0.8)');
-  renderChart('cvTrendChart', 'Daily CV% Trend', dailyLabels, cvTrend, 'rgba(255, 149, 0, 0.8)');
-  renderBarChart('machineChart', 'Machine Performance (Avg G/Y%)', machineLabels, machinePerf, 'rgba(46, 204, 113, 0.8)');
-  renderBarChart('deptChart', 'Department Comparison (Avg G/Y%)', deptLabels, deptAverageG, 'rgba(90, 116, 255, 0.8)');
-  renderLineChart('rejectionTrendChart', 'Rejection Trend', dailyLabels, rejectionTrend, 'rgba(210, 63, 63, 0.8)');
+  const machineLabels = [...new Set(allData.map(r => r.machine))].sort();
+  const machinePerf = machineLabels.map(m => {
+    const vals = allData.filter(r => r.machine === m).map(r => Number(r.g));
+    return vals.length ? round(average(vals)) : 0;
+  });
+
+  const deptLabels = Object.keys(data);
+  const deptAvg = deptLabels.map(d => {
+    const vals = data[d].map(r => Number(r.g));
+    return vals.length ? round(average(vals)) : 0;
+  });
+
+  const rejectionTrend = dailyLabels.map(d => allData.filter(r => r.date === d && r.status === 'REJECTED').length);
+
+  // Shift-wise performance
+  const dayData = allData.filter(r => r.shift === 'Day').map(r => Number(r.g));
+  const nightData = allData.filter(r => r.shift === 'Night').map(r => Number(r.g));
+  const shiftLabels = ['Day', 'Night'];
+  const shiftValues = [
+    dayData.length ? round(average(dayData)) : 0,
+    nightData.length ? round(average(nightData)) : 0
+  ];
+
+  renderChart('gTrendChart', 'G/Y% Trend', dailyLabels, gTrend, 'rgba(45,108,223,0.8)');
+  renderChart('cvTrendChart', 'CV% Trend', dailyLabels, cvTrend, 'rgba(255,149,0,0.8)');
+  renderBarChart('machineChart', 'Machine G/Y%', machineLabels, machinePerf, 'rgba(46,204,113,0.8)');
+  renderBarChart('deptChart', 'Department G/Y%', deptLabels, deptAvg, 'rgba(90,116,255,0.8)');
+  renderLineChart('rejectionTrendChart', 'Rejections', dailyLabels, rejectionTrend, 'rgba(210,63,63,0.8)');
+  renderBarChart('shiftChart', 'Shift Performance', shiftLabels, shiftValues, 'rgba(155,89,182,0.8)');
 }
 
 function renderChart(canvasId, label, labels, values, color) {

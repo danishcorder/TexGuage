@@ -3,82 +3,163 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TexGauge - Textile Quality Monitor</title>
+  <title>TexGauge IQ - Industrial Textile Quality Monitoring</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-  <!-- Mobile Sidebar Toggle -->
   <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle Sidebar">☰</button>
 
   <div class="page-shell">
     <!-- Sidebar Navigation -->
     <aside class="sidebar" id="sidebar">
-      <a href="index.html" class="logo">TexGauge</a>
+      <a href="index.html" class="logo">TexGauge<span style="color:#4a8af4;">IQ</span></a>
+      <div style="padding:0 14px 10px;font-size:0.7rem;color:var(--text-muted);border-bottom:1px solid rgba(255,255,255,0.08);">
+        Industrial Textile Quality Monitoring & Intelligence System
+      </div>
       <nav>
-        <a href="pages/carding.html">Carding</a>
-        <a href="pages/breaker.html">Breaker Draw Frame</a>
-        <a href="pages/finisher.html">Finisher Draw Frame</a>
-        <a href="pages/simplex.html">Simplex</a>
-        <a href="index.html" class="active">Dashboard</a>
+        <a href="index.html" class="active">📊 Command Center</a>
+        <a href="pages/carding.html">⚙️ Carding</a>
+        <a href="pages/breaker.html">🔧 Breaker Drawing</a>
+        <a href="pages/finisher.html">🛠️ Finisher Drawing</a>
+        <a href="pages/simplex.html">🧵 Simplex</a>
       </nav>
-      <button id="themeToggle">Dark Mode</button>
+
+      <!-- Live Mode Toggle -->
+      <div style="padding:10px 14px;border-top:1px solid rgba(255,255,255,0.08);">
+        <button id="liveModeBtn" class="secondary" style="width:100%;background:rgba(255,255,255,0.05);color:var(--text-sidebar);" onclick="toggleLiveMode()">
+          ⏸ Live Mode: OFF
+        </button>
+      </div>
+
+      <button id="themeToggle">🌙 Dark Mode</button>
     </aside>
 
     <!-- Main Content -->
     <main>
+      <!-- Top Bar -->
       <header class="page-header">
         <div>
-          <h1>📊 TexGauge Dashboard</h1>
-          <p>Department-level quality monitoring, KPI tracking, and trend insights.</p>
+          <h1>📊 TexGauge<span style="color:var(--accent);">IQ</span> Command Center</h1>
+          <p>Industrial Textile Quality Monitoring & Intelligence System — Real-time insights, alerts & analytics</p>
         </div>
-        <button class="primary" onclick="exportAllDepartmentsToExcel()">⬇ Export All Sheets</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="primary" onclick="exportAllDepartmentsToExcel()">⬇ Export All Reports</button>
+          <button class="secondary" onclick="AlertSystem.clearAll();updateAlertPanel();">🗑 Clear Alerts</button>
+        </div>
       </header>
 
-      <!-- Summary Cards -->
-      <section class="metrics-grid" id="summaryCards"></section>
+      <!-- Role Switcher -->
+      <div class="card" style="padding:12px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <span style="font-weight:600;font-size:0.9rem;">👤 Mode:</span>
+        <button id="roleOperator" class="primary" onclick="setRole('operator')" style="padding:6px 16px;font-size:0.85rem;">🔧 Operator</button>
+        <button id="roleManager" class="secondary" onclick="setRole('manager')" style="padding:6px 16px;font-size:0.85rem;">📈 Manager</button>
+        <span style="color:var(--text-muted);font-size:0.85rem;margin-left:auto;" id="roleIndicator">🟢 Operator View Active</span>
+      </div>
 
-      <!-- KPI Indicators -->
-      <section class="card">
-        <h2>KPI Status Indicators</h2>
-        <div class="flex gap-2 flex-wrap">
-          <span class="kpi-indicator kpi-green">🟢 Within Target</span>
-          <span class="kpi-indicator kpi-yellow">🟡 Warning</span>
-          <span class="kpi-indicator kpi-red">🔴 Out Of Control</span>
+      <!-- Process Flow -->
+      <section class="card" id="processFlowSection">
+        <h2>🏭 Production Process Flow</h2>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center;padding:10px 0;">
+          <div class="process-step" style="background:#e3f2fd;color:#1565c0;padding:8px 16px;border-radius:8px;font-weight:600;">Blowroom</div>
+          <div style="font-size:1.5rem;color:var(--text-muted);">→</div>
+          <div class="process-step" style="background:#fff3e0;color:#e65100;padding:8px 16px;border-radius:8px;font-weight:600;">⚙️ Carding</div>
+          <div style="font-size:1.5rem;color:var(--text-muted);">→</div>
+          <div class="process-step" style="background:#e8f5e9;color:#2e7d32;padding:8px 16px;border-radius:8px;font-weight:600;">🔧 Drawing</div>
+          <div style="font-size:1.5rem;color:var(--text-muted);">→</div>
+          <div class="process-step" style="background:#f3e5f5;color:#6a1b9a;padding:8px 16px;border-radius:8px;font-weight:600;">🧵 Simplex</div>
+          <div style="font-size:1.5rem;color:var(--text-muted);">→</div>
+          <div class="process-step" style="background:#ffebee;color:#c62828;padding:8px 16px;border-radius:8px;font-weight:600;">Ring Frame</div>
         </div>
       </section>
 
-      <!-- Charts -->
+      <!-- Quick Stats Row -->
+      <section class="metrics-grid" id="summaryCards"></section>
+
+      <!-- Alert Panel + Charts Side by Side (Manager Mode) -->
+      <div id="managerPanel" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+        <!-- Alert Panel -->
+        <section class="card" style="grid-column: 1;">
+          <h2>🚨 Active Alerts <span id="alertBadge" style="background:#d23f3f;color:white;padding:2px 10px;border-radius:12px;font-size:0.75rem;">0</span></h2>
+          <div id="alertPanel" style="max-height:300px;overflow-y:auto;">
+            <p style="color:var(--text-muted);text-align:center;padding:20px;">No active alerts. All systems normal. 🟢</p>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+            <span class="kpi-indicator kpi-green">🟢 Normal</span>
+            <span class="kpi-indicator kpi-yellow">🟡 Warning</span>
+            <span class="kpi-indicator kpi-red">🔴 Critical</span>
+          </div>
+        </section>
+
+        <!-- KPI Summary -->
+        <section class="card" style="grid-column: 2;">
+          <h2>📊 Quality KPIs</h2>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" id="kpiSummary">
+            <div class="metric-card" style="border-left-color:var(--accent);">
+              <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;">Avg CV%</div>
+              <div style="font-size:1.8rem;font-weight:700;color:var(--accent);" id="kpiAvgCv">0.00%</div>
+            </div>
+            <div class="metric-card" style="border-left-color:var(--success);">
+              <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;">Quality Index</div>
+              <div style="font-size:1.8rem;font-weight:700;color:var(--success);" id="kpiQuality">100%</div>
+            </div>
+            <div class="metric-card" style="border-left-color:var(--warning);">
+              <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;">Total Samples</div>
+              <div style="font-size:1.8rem;font-weight:700;color:var(--warning);" id="kpiTotal">0</div>
+            </div>
+            <div class="metric-card" style="border-left-color:var(--danger);">
+              <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;">Rejection Rate</div>
+              <div style="font-size:1.8rem;font-weight:700;color:var(--danger);" id="kpiReject">0%</div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Charts Grid -->
       <section class="card chart-card">
-        <h2>Daily G% Trend</h2>
-        <div class="chart-item"><canvas id="gTrendChart"></canvas></div>
+        <h2>📈 Trend Analytics</h2>
+        <div class="chart-row">
+          <div class="chart-item"><canvas id="gTrendChart"></canvas></div>
+          <div class="chart-item"><canvas id="cvTrendChart"></canvas></div>
+          <div class="chart-item"><canvas id="rejectionTrendChart"></canvas></div>
+        </div>
+        <div class="chart-row" style="margin-top:16px;">
+          <div class="chart-item"><canvas id="machineChart"></canvas></div>
+          <div class="chart-item"><canvas id="deptChart"></canvas></div>
+          <div class="chart-item"><canvas id="shiftChart"></canvas></div>
+        </div>
       </section>
 
-      <section class="card chart-card">
-        <h2>Daily CV% Trend</h2>
-        <div class="chart-item"><canvas id="cvTrendChart"></canvas></div>
-      </section>
-
-      <section class="card chart-card">
-        <h2>Rejection Trend</h2>
-        <div class="chart-item"><canvas id="rejectionTrendChart"></canvas></div>
-      </section>
-
-      <section class="card chart-card">
-        <h2>Machine Performance Comparison</h2>
-        <div class="chart-item"><canvas id="machineChart"></canvas></div>
-      </section>
-
-      <section class="card chart-card">
-        <h2>Department Comparison</h2>
-        <div class="chart-item"><canvas id="deptChart"></canvas></div>
+      <!-- Batch Traceability -->
+      <section class="card">
+        <h2>🔗 Batch Traceability</h2>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px;background:var(--bg-input);border-radius:8px;">
+          <div style="padding:8px 16px;background:var(--accent-light);border-radius:6px;font-size:0.85rem;">
+            <strong>Bale:</strong> B2026-<span id="traceBale">042</span>
+          </div>
+          <div style="font-size:1.2rem;color:var(--text-muted);">→</div>
+          <div style="padding:8px 16px;background:var(--accent-light);border-radius:6px;font-size:0.85rem;">
+            <strong>M/C:</strong> <span id="traceMachine">C-05</span>
+          </div>
+          <div style="font-size:1.2rem;color:var(--text-muted);">→</div>
+          <div style="padding:8px 16px;background:var(--accent-light);border-radius:6px;font-size:0.85rem;">
+            <strong>Sliver Lot:</strong> SL-<span id="traceLot">2026-06-23</span>
+          </div>
+          <div style="font-size:1.2rem;color:var(--text-muted);">→</div>
+          <div style="padding:8px 16px;background:var(--success-light);border-radius:6px;font-size:0.85rem;">
+            ✅ <span id="traceStatus">ACCEPTED</span>
+          </div>
+        </div>
       </section>
     </main>
   </div>
 
   <script src="js/calculations.js"></script>
   <script src="js/validation.js"></script>
+  <script src="js/alertSystem.js"></script>
+  <script src="js/smartScale.js"></script>
+  <script src="js/liveSimulation.js"></script>
   <script src="js/dashboard.js"></script>
   <script src="js/excelExport.js"></script>
   <script>
