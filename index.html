@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TexGauge - Textile Quality Monitor</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <!-- Mobile Sidebar Toggle -->
+  <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle Sidebar">☰</button>
+
+  <div class="page-shell">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <a href="index.html" class="logo">TexGauge</a>
+      <nav>
+        <a href="pages/carding.html">Carding</a>
+        <a href="pages/breaker.html">Breaker Draw Frame</a>
+        <a href="pages/finisher.html">Finisher Draw Frame</a>
+        <a href="pages/simplex.html">Simplex</a>
+        <a href="index.html" class="active">Dashboard</a>
+      </nav>
+      <button id="themeToggle">Dark Mode</button>
+    </aside>
+
+    <!-- Main Content -->
+    <main>
+      <header class="page-header">
+        <div>
+          <h1>📊 TexGauge Dashboard</h1>
+          <p>Department-level quality monitoring, KPI tracking, and trend insights.</p>
+        </div>
+        <button class="primary" onclick="exportAllDepartmentsToExcel()">⬇ Export All Sheets</button>
+      </header>
+
+      <!-- Summary Cards -->
+      <section class="metrics-grid" id="summaryCards"></section>
+
+      <!-- KPI Indicators -->
+      <section class="card">
+        <h2>KPI Status Indicators</h2>
+        <div class="flex gap-2 flex-wrap">
+          <span class="kpi-indicator kpi-green">🟢 Within Target</span>
+          <span class="kpi-indicator kpi-yellow">🟡 Warning</span>
+          <span class="kpi-indicator kpi-red">🔴 Out Of Control</span>
+        </div>
+      </section>
+
+      <!-- Charts -->
+      <section class="card chart-card">
+        <h2>Daily G% Trend</h2>
+        <div class="chart-item"><canvas id="gTrendChart"></canvas></div>
+      </section>
+
+      <section class="card chart-card">
+        <h2>Daily CV% Trend</h2>
+        <div class="chart-item"><canvas id="cvTrendChart"></canvas></div>
+      </section>
+
+      <section class="card chart-card">
+        <h2>Rejection Trend</h2>
+        <div class="chart-item"><canvas id="rejectionTrendChart"></canvas></div>
+      </section>
+
+      <section class="card chart-card">
+        <h2>Machine Performance Comparison</h2>
+        <div class="chart-item"><canvas id="machineChart"></canvas></div>
+      </section>
+
+      <section class="card chart-card">
+        <h2>Department Comparison</h2>
+        <div class="chart-item"><canvas id="deptChart"></canvas></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/calculations.js"></script>
+  <script src="js/validation.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/excelExport.js"></script>
+  <script>
+    initializeDashboard();
+  </script>
+</body>
+</html>
