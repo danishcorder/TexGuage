@@ -27,35 +27,27 @@
       <header class="page-header">
         <div>
           <h1>🧵 Simplex - Data Entry</h1>
-         
         </div>
       </header>
-
 
       <section class="card entry-card">
         <h3 style="margin-bottom:12px;">📋 Basic Information</h3>
         <div class="form-grid">
           <label>📅 Date<input id="date" type="date"></label>
           <label>⏰ Shift
-           <select id="shift">
+            <select id="shift">
               <option value="Day"> A (5AM - 1PM)</option>
               <option value="Night">B (1PM - 10PM)</option>
-               <option value="Night">C (10PM - 5AM)</option>
+              <option value="Night">C (10PM - 5AM)</option>
             </select>
           </label>
-          <label>🔢 Machine Number
-            <select id="machine">
-              <option value="S1">S1</option><option value="S2">S2</option><option value="S3">S3</option>
-              <option value="S4">S4</option><option value="S5">S5</option><option value="S6">S6</option>
-              <option value="S7">S7</option><option value="S8">S8</option><option value="S9">S9</option>
-              <option value="S10">S10</option><option value="S11">S11</option><option value="S12">S12</option>
-              <option value="S13">S13</option><option value="S14">S14</option><option value="S15">S15</option>
-              <option value="S16">S16</option><option value="S17">S17</option><option value="S18">S18</option>
-              <option value="S19">S19</option><option value="S20">S20</option>
-            </select>
+          <label style="grid-column:span 2;">🏷️ HR Group
+            <div id="hrGroupContainer" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;padding:6px 0;"></div>
+          </label>
+          <label>🔢 Machine
+            <select id="machine"></select>
           </label>
           <label>👤 Operator Name<input id="operator" type="text" placeholder="e.g. Muhammad Ali"></label>
-          <label>🔢 Count<input id="count" type="number" step="0.01" placeholder="e.g. 0.15"></label>
           <label>🔢 No of Samples
             <select id="noOfSamples">
               <option value="2">2</option>
@@ -63,13 +55,9 @@
               <option value="4">4</option>
               <option value="5">5</option>
               <option value="6" selected>6</option>
-              <option value="7">7</option>
-              <option value="8">8</option>
-              <option value="9">9</option>
-              <option value="10">10</option>
             </select>
           </label>
-          <label>📏 Length of Sample
+          <label>📏 Sample Length
             <select id="sampleLength">
               <option value="1">1 Yard</option>
               <option value="2">2 Yards</option>
@@ -77,39 +65,35 @@
               <option value="4">4 Yards</option>
               <option value="5">5 Yards</option>
               <option value="6" selected>6 Yards</option>
-              <option value="7">7 Yard</option>
-              <option value="8">8 Yards</option>
-              <option value="9">9 Yards</option>
-              <option value="10">10 Yards</option>
             </select>
           </label>
-          <label> Yard → Meter<span id="lengthDisplay" style="font-weight:600;color:var(--text-primary);padding:9px 0;">6 yd / 5.4864 m</span></label>
-          <label>Meter → Yard<span id="lengthDisplayMeter" style="font-weight:600;color:var(--text-primary);padding:9px 0;">5.4864 m / 6.0000 yd</span></label>
-          <label>⚖️ Minimum Weight (g)<input id="minWeight" type="number" step="0.01" readonly></label>
-          <label>⚖️ Maximum Weight (g)<input id="maxWeight" type="number" step="0.01" readonly></label>
-          <label>📊 Target HR% Min<input id="gMin" type="number" placeholder="109" value="109"></label>
-          <label>📊 Target HR% Max<input id="gMax" type="number" placeholder="111" value="111"></label>
+          <label>📏 Yd → M<span id="lengthDisplay" style="font-weight:600;color:var(--text-primary);padding:9px 0;">6 yd / 5.4864 m</span></label>
+          <label>📏 M → Yd<span id="lengthDisplayMeter" style="font-weight:600;color:var(--text-primary);padding:9px 0;">5.4864 m / 6.0000 yd</span></label>
+          <label style="background:var(--accent-light);border-radius:var(--radius-sm);padding:4px 10px;">🔢 HR <span id="hrDisplay" style="font-weight:700;color:var(--accent);font-size:1.1rem;">0.59</span></label>
+          <label style="background:var(--accent-light);border-radius:var(--radius-sm);padding:4px 10px;">⚖️ Min Weight (g)<span id="minWeightDisplay" style="font-weight:700;color:var(--text-primary);font-size:1rem;padding:4px 0;">5.45</span>
+            <input id="minWeight" type="hidden">
+          </label>
+          <label style="background:var(--accent-light);border-radius:var(--radius-sm);padding:4px 10px;">⚖️ Max Weight (g)<span id="maxWeightDisplay" style="font-weight:700;color:var(--text-primary);font-size:1rem;padding:4px 0;">5.58</span>
+            <input id="maxWeight" type="hidden">
+          </label>
         </div>
 
-        <h3 style="margin-top:20px; margin-bottom:12px;">🧶 Hank Roving Samples <span style="font-weight:400; color:var(--text-muted); font-size:0.85rem;">(Enter at least 2 - leave others empty if not needed)</span></h3>
-        <div class="form-grid sample-grid">
+        <h3 style="margin-top:20px; margin-bottom:12px;">🧶 Sample Weights <span style="font-weight:400; color:var(--text-muted); font-size:0.85rem;">(Enter at least 2)</span></h3>
+        <div class="form-grid sample-grid" id="sampleGrid" style="grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));">
           <label>Sample 1<input id="s1" type="number" step="0.01" placeholder="0.00"></label>
           <label>Sample 2<input id="s2" type="number" step="0.01" placeholder="0.00"></label>
           <label>Sample 3<input id="s3" type="number" step="0.01" placeholder="0.00"></label>
           <label>Sample 4<input id="s4" type="number" step="0.01" placeholder="0.00"></label>
           <label>Sample 5<input id="s5" type="number" step="0.01" placeholder="0.00"></label>
           <label>Sample 6<input id="s6" type="number" step="0.01" placeholder="0.00"></label>
-          <label>Sample 7<input id="s7" type="number" step="0.01" placeholder="0.00"></label>
-          <label>Sample 8<input id="s8" type="number" step="0.01" placeholder="0.00"></label>
-          <label>Sample 9<input id="s9" type="number" step="0.01" placeholder="0.00"></label>
-          <label>Sample 10<input id="s10" type="number" step="0.01" placeholder="0.00"></label>
         </div>
 
         <!-- Calculation Results -->
         <div class="calc-row">
-          <div>📐 <strong>Mean:</strong> <span id="avgWeight">0.00</span> <small>(2 decimals)</small></div>
-          <div>📈 <strong>CV%:</strong> <span id="cvValue">0.00</span> <small>(2 decimals)</small></div>
-          <div>📏 <strong>Hank Roving:</strong> <span id="gValue">0.000</span> <small>(3 decimals)</small></div>
+          <div>📐 <strong>Mean:</strong> <span id="avgWeight">0.00</span></div>
+          <div>📉 <strong>SD:</strong> <span id="sdValue">0.000</span></div>
+          <div>📈 <strong>CV%:</strong> <span id="cvValue">0.00</span></div>
+          <div>📏 <strong>Hank:</strong> <span id="gValue">0.000</span></div>
         </div>
 
         <!-- Status Message -->
@@ -118,7 +102,6 @@
         <!-- Action Buttons -->
         <div class="action-row">
           <button id="saveBtn" class="primary" disabled>💾 Save Record</button>
-          <button id="scaleBtn" class="secondary">📡 Connect Scale</button>
           <button id="excelBtn" class="secondary">📥 Download Simplex Report</button>
           <button type="button" class="secondary" onclick="clearAllInputs()">🔄 Clear Form</button>
           <button type="button" class="secondary" onclick="clearAllRecords()" style="background:var(--danger-light);color:var(--danger);border-color:var(--danger);">🗑 Clear All Records</button>
@@ -134,17 +117,10 @@
         <div class="filters-row">
           <input id="searchText" type="search" placeholder="🔍 Search by operator, machine...">
           <input id="filterDate" type="date" title="Filter by date">
-         <select id="filterShift" title="Filter by shift"> 
-              <option value="Day"> A (5AM - 1PM)</option>
-              <option value="Night">B (1PM - 10PM)</option>
-              <option value="Night">C (10PM - 5AM)</option>
-          </select>
-          <select>
-            <option value="">All Machines</option>
-            <option>S1</option><option>S2</option><option>S3</option><option>S4</option><option>S5</option>
-            <option>S6</option><option>S7</option><option>S8</option><option>S9</option><option>S10</option>
-            <option>S11</option><option>S12</option><option>S13</option><option>S14</option><option>S15</option>
-            <option>S16</option><option>S17</option><option>S18</option><option>S19</option><option>S20</option>
+          <select id="filterShift" title="Filter by shift">
+            <option value="">All Shifts</option>
+            <option value="Day"> A (5AM - 1PM)</option>
+            <option value="Night">B (1PM - 10PM)</option>
           </select>
         </div>
         <div class="table-wrapper">
@@ -155,11 +131,12 @@
                 <th onclick="sortTable(1)">⏰ Shift</th>
                 <th onclick="sortTable(2)">🔢 Machine</th>
                 <th>👤 Operator</th>
-                <th>🔢 Count</th>
+                <th>🔢 S</th>
                 <th onclick="sortTable(5)">📐 Mean</th>
                 <th onclick="sortTable(6)">📈 CV%</th>
-                <th onclick="sortTable(7)">📏 Hank Roving</th>
+                <th onclick="sortTable(7)">📏 Hank</th>
                 <th>✅ Status</th>
+                <th>🗑</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -169,14 +146,16 @@
     </main>
   </div>
 
+  <script src="../js/auth.js"></script>
   <script src="../js/calculations.js"></script>
   <script src="../js/validation.js"></script>
   <script src="../js/alertSystem.js"></script>
-  <script src="../js/smartScale.js"></script>
   <script src="../js/dashboard.js"></script>
   <script src="../js/excelExport.js"></script>
+  <script src="../js/simplex.js"></script>
   <script>
-    initializeSimplexPage();
+    initAuth();
+    initSimplexPage();
   </script>
 </body>
 </html>

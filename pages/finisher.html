@@ -61,11 +61,11 @@
               <option value="3">3</option>
               <option value="4">4</option>
               <option value="5">5</option>
-              <option value="6" selected>6</option>
+              <option value="6" >6</option>
               <option value="7">7</option>
               <option value="8">8</option>
               <option value="9">9</option>
-              <option value="10">10</option>
+              <option value="10"  selected>10</option>
             </select>
           </label>
           <label>📏 Length of Sample
@@ -75,19 +75,19 @@
               <option value="3">3 Yards</option>
               <option value="4">4 Yards</option>
               <option value="5">5 Yards</option>
-              <option value="6" selected>6 Yards</option>
+              <option value="6" >6 Yards</option>
               <option value="7">7 Yard</option>
               <option value="8">8 Yards</option>
               <option value="9">9 Yards</option>
-              <option value="10">10 Yards</option>
+              <option value="10" selected>10 Yards</option>
             </select>
           </label>
-          <label>📏 Length Display (Yard → Meter)<span id="lengthDisplay" style="font-weight:600;color:var(--text-primary);padding:9px 0;">6 yd / 5.4864 m</span></label>
-          <label>📏 Length Display (Meter → Yard)<span id="lengthDisplayMeter" style="font-weight:600;color:var(--text-primary);padding:9px 0;">5.4864 m / 6.0000 yd</span></label>
-          <label>⚖️ Minimum Weight (g)<input id="minWeight" type="number" step="0.01" readonly></label>
-          <label>⚖️ Maximum Weight (g)<input id="maxWeight" type="number" step="0.01" readonly></label>
-          <label>📊 Target G/Y% Min<input id="gMin" type="number" step="0.01" placeholder="74.50" value="74.50"></label>
-          <label>📊 Target G/Y% Max<input id="gMax" type="number" step="0.01" placeholder="74.95" value="74.95"></label>
+          <label>Yard → Meter<span id="lengthDisplay" style="font-weight:600;color:var(--text-primary);padding:9px 0;">6 yd / 5.4864 m</span></label>
+          <label>Meter → Yard<span id="lengthDisplayMeter" style="font-weight:600;color:var(--text-primary);padding:9px 0;">5.4864 m / 6.0000 yd</span></label>
+          
+          <label>🎯 Target Wt (g)<input id="maxWeight" type="number" step="0.01" placeholder="100"></label>
+          <label>G% Min<input id="gMin" type="number" step="0.01" placeholder="74.50" value="74.50"></label>
+          <label>G% Max<input id="gMax" type="number" step="0.01" placeholder="74.95" value="74.95"></label>
         </div>
 
         <h3 style="margin-top:20px; margin-bottom:12px;">⚖️ Sample Weights <span style="font-weight:400; color:var(--text-muted); font-size:0.85rem;">(Enter at least 2 - leave others empty if not needed)</span></h3>
@@ -169,6 +169,7 @@
     </main>
   </div>
 
+  <script src="../js/auth.js"></script>
   <script src="../js/calculations.js"></script>
   <script src="../js/validation.js"></script>
   <script src="../js/alertSystem.js"></script>
@@ -176,6 +177,7 @@
   <script src="../js/dashboard.js"></script>
   <script src="../js/excelExport.js"></script>
   <script>
+    initAuth();
     initializeDepartmentPage('Finisher');
   </script>
 </body>

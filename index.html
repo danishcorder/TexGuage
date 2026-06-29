@@ -120,14 +120,22 @@
       <section class="card chart-card">
         <h2>📈 Trend Analytics</h2>
         <div class="chart-row">
-          <div class="chart-item"><canvas id="gTrendChart"></canvas></div>
-          <div class="chart-item"><canvas id="cvTrendChart"></canvas></div>
-          <div class="chart-item"><canvas id="rejectionTrendChart"></canvas></div>
-        </div>
-        <div class="chart-row" style="margin-top:16px;">
-          <div class="chart-item"><canvas id="machineChart"></canvas></div>
-          <div class="chart-item"><canvas id="deptChart"></canvas></div>
-          <div class="chart-item"><canvas id="shiftChart"></canvas></div>
+          <div class="chart-item">
+            <h3>Daily Quality Output</h3>
+            <canvas id="gTrendChart"></canvas>
+          </div>
+          <div class="chart-item">
+            <h3>Daily CV% Variation</h3>
+            <canvas id="cvTrendChart"></canvas>
+          </div>
+          <div class="chart-item">
+            <h3>Department Rejection Rate</h3>
+            <canvas id="deptChart"></canvas>
+          </div>
+          <div class="chart-item">
+            <h3>Machine Rejections</h3>
+            <canvas id="machineChart"></canvas>
+          </div>
         </div>
       </section>
 
@@ -155,6 +163,7 @@
     </main>
   </div>
 
+  <script src="js/auth.js"></script>
   <script src="js/calculations.js"></script>
   <script src="js/validation.js"></script>
   <script src="js/alertSystem.js"></script>
@@ -163,6 +172,7 @@
   <script src="js/dashboard.js"></script>
   <script src="js/excelExport.js"></script>
   <script>
+    initAuth();
     initializeDashboard();
   </script>
 </body>

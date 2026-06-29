@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TexGauge IQ - Login</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/login.css">
+</head>
+<body class="login-body">
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <a href="login.html" class="login-logo">TexGauge<span>IQ</span></a>
+        <div class="login-subtitle">
+          Industrial Textile Quality Monitoring & Intelligence System
+        </div>
+      </div>
+
+      <form class="login-form" id="loginForm" autocomplete="off">
+        <div id="loginError" class="login-error"></div>
+
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" placeholder="Enter username" required autofocus>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Enter password" required>
+        </div>
+
+        <button type="submit" class="login-btn" id="loginBtn">
+          🔐 Sign In
+        </button>
+      </form>
+
+      <div class="login-footer">
+        <div style="margin-bottom: 8px; font-weight: 600; font-size: 0.8rem; color: var(--text-secondary);">
+          Demo Credentials
+        </div>
+        <div class="role-hints">
+          <div class="role-hint">
+            <strong>Admin</strong>
+            admin / <code>admin123</code>
+          </div>
+          <div class="role-hint">
+            <strong>Supervisor</strong>
+            supervisor / <code>sup123</code>
+          </div>
+          <div class="role-hint">
+            <strong>Operator</strong>
+            operator / <code>op123</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script>
+    (function() {
+      // If already logged in, redirect to appropriate page
+      var existingAuth = Auth.getAuth();
+      if (existingAuth) {
+        var landing = Auth.getLandingPage(existingAuth.role);
+        window.location.href = landing;
+        return;
+      }
+
+      var loginForm = document.getElementById('loginForm');
+      var usernameInput = document.getElementById('username');
+      var passwordInput = document.getElementById('password');
+      var errorDiv = document.getElementById('loginError');
+      var loginBtn = document.getElementById('loginBtn');
+
+      loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        var username = usernameInput.value.trim();
+        var password = passwordInput.value.trim();
+
+        if (!username || !password) {
+          showError('Please enter both username and password.');
+          return;
+        }
+
+        loginBtn.disabled = true;
+        loginBtn.textContent = '⏳ Signing in...';
+
+        var result = Auth.login(username, password);
+
+        if (result.success) {
+          var landing = Auth.getLandingPage(result.role);
+          window.location.href = landing;
+        } else {
+          showError(result.message);
+          loginBtn.disabled = false;
+          loginBtn.textContent = '🔐 Sign In';
+          passwordInput.value = '';
+          passwordInput.focus();
+        }
+      });
+
+      function showError(message) {
+        errorDiv.textContent = message;
+        errorDiv.classList.add('visible');
+        setTimeout(function() {
+          errorDiv.classList.remove('visible');
+        }, 4000);
+      }
+
+      // Allow pressing Enter on password field
+      passwordInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          loginForm.dispatchEvent(new Event('submit'));
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

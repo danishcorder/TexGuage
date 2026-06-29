@@ -592,14 +592,19 @@ function saveRecord(department, isSimplex) {
     gValue = gyPercent(meanValue, sampleLengthYards);
   }
   
-  // Check if any sample weight is out of range (only for Simplex)
+  // Determine status based on G/Y% (or Hank Roving) range for all departments
   let recordStatus = 'ACCEPTED';
   if (isSimplex) {
+    // Simplex: check sample weight range
     const hasOutOfRangeSample = sampleValues.some(sample => {
       return sample > 0 && (sample < minWeight || sample > maxWeight);
     });
-    
     if (hasOutOfRangeSample) {
+      recordStatus = 'REJECTED';
+    }
+  } else {
+    // Carding, Breaker, Finisher: check G/Y% against target range
+    if (gValue < gMin || gValue > gMax) {
       recordStatus = 'REJECTED';
     }
   }
@@ -636,8 +641,6 @@ function saveRecord(department, isSimplex) {
 }
 
 function clearInputs(isSimplex) {
-  const op = document.getElementById('operator');
-  if (op) op.value = '';
   const cnt = document.getElementById('count');
   if (cnt) cnt.value = '';
   document.querySelectorAll('.entry-card input[type="number"]').forEach(input => {
@@ -734,6 +737,11 @@ function updateReportTable() {
     });
   }
 
+  if (sorted.length === 0) {
+    tbody.innerHTML = `<tr class="empty-state"><td colspan="10">No records saved yet. Enter data above and click <strong>Save Record</strong> to begin.</td></tr>`;
+    return;
+  }
+
   tbody.innerHTML = sorted.map(record => {
     const sampleText = Array.isArray(record.samples) ? record.samples.filter(s => s > 0).join(' | ') : record.samples;
     const statusColor = record.status === 'ACCEPTED' ? '#2f9c4d' : '#d23f3f';
@@ -762,6 +770,8 @@ function sortTable(columnIndex) {
 }
 
 // =================== DASHBOARD ===================
+let dashboardCharts = [];
+
 function initializeDashboard() {
   setThemeToggle();
   setMobileToggle();
@@ -783,8 +793,6 @@ function initializeDashboard() {
       buildSummaryCards(allRecords);
       updateKPI();
       updateAlertPanel();
-      // Destroy old charts and rebuild
-      Chart.instances?.forEach(c => c.destroy());
       buildDashboardCharts(allRecords);
     }
   });
@@ -838,76 +846,206 @@ function buildSummaryCards(data) {
 
 function buildDashboardCharts(data) {
   const allData = Object.values(data).flat();
-  if (allData.length === 0) return;
+  destroyDashboardCharts();
 
-  const dailyLabels = [...new Set(allData.map(r => r.date))].sort();
+  if (allData.length === 0) {
+    renderEmptyCharts();
+    return;
+  }
+
+  const dailyLabels = [...new Set(allData.map(r => r.date).filter(Boolean))].sort();
+  const dateLabels = dailyLabels.length ? dailyLabels : ['No date'];
   
-  const gTrend = dailyLabels.map(d => {
+  const gTrend = dateLabels.map(d => {
     const vals = allData.filter(r => r.date === d).map(r => Number(r.g));
     return vals.length ? round(average(vals)) : 0;
   });
-  const cvTrend = dailyLabels.map(d => {
+  const cvTrend = dateLabels.map(d => {
     const vals = allData.filter(r => r.date === d).map(r => Number(r.cv));
     return vals.length ? round(average(vals)) : 0;
   });
 
-  const machineLabels = [...new Set(allData.map(r => r.machine))].sort();
-  const machinePerf = machineLabels.map(m => {
-    const vals = allData.filter(r => r.machine === m).map(r => Number(r.g));
-    return vals.length ? round(average(vals)) : 0;
-  });
-
   const deptLabels = Object.keys(data);
-  const deptAvg = deptLabels.map(d => {
-    const vals = data[d].map(r => Number(r.g));
-    return vals.length ? round(average(vals)) : 0;
+  const deptRejectRate = deptLabels.map(d => {
+    const records = data[d];
+    const rejected = records.filter(r => r.status === 'REJECTED').length;
+    return records.length ? round((rejected / records.length) * 100) : 0;
   });
 
-  const rejectionTrend = dailyLabels.map(d => allData.filter(r => r.date === d && r.status === 'REJECTED').length);
+  const machineLabels = [...new Set(allData.map(r => r.machine).filter(Boolean))].sort();
+  const machineChartLabels = machineLabels.length ? machineLabels : ['No machine'];
+  const machineRejects = machineChartLabels.map(m => allData.filter(r => r.machine === m && r.status === 'REJECTED').length);
 
-  // Shift-wise performance
-  const dayData = allData.filter(r => r.shift === 'Day').map(r => Number(r.g));
-  const nightData = allData.filter(r => r.shift === 'Night').map(r => Number(r.g));
-  const shiftLabels = ['A', 'B','C'];
-  const shiftValues = [
-    dayData.length ? round(average(dayData)) : 0,
-    nightData.length ? round(average(nightData)) : 0
-  ];
-
-  renderChart('gTrendChart', 'G/Y% Trend', dailyLabels, gTrend, 'rgba(45,108,223,0.8)');
-  renderChart('cvTrendChart', 'CV% Trend', dailyLabels, cvTrend, 'rgba(255,149,0,0.8)');
-  renderBarChart('machineChart', 'Machine G/Y%', machineLabels, machinePerf, 'rgba(46,204,113,0.8)');
-  renderBarChart('deptChart', 'Department G/Y%', deptLabels, deptAvg, 'rgba(90,116,255,0.8)');
-  renderLineChart('rejectionTrendChart', 'Rejections', dailyLabels, rejectionTrend, 'rgba(210,63,63,0.8)');
-  renderBarChart('shiftChart', 'Shift Performance', shiftLabels, shiftValues, 'rgba(155,89,182,0.8)');
+  renderChart('gTrendChart', 'Average Output', dateLabels, gTrend, 'rgba(45,108,223,0.85)', 'Date', 'Output Value');
+  renderChart('cvTrendChart', 'Average CV%', dateLabels, cvTrend, 'rgba(255,149,0,0.85)', 'Date', 'CV%');
+  renderBarChart('deptChart', 'Rejected %', deptLabels, deptRejectRate, 'rgba(210,63,63,0.85)', 'Department', 'Rejected %');
+  renderBarChart('machineChart', 'Rejected Samples', machineChartLabels, machineRejects, 'rgba(155,89,182,0.85)', 'Machine', 'Rejected Samples');
 }
 
-function renderChart(canvasId, label, labels, values, color) {
+function destroyDashboardCharts() {
+  dashboardCharts.forEach(chart => chart.destroy());
+  dashboardCharts = [];
+}
+
+function renderEmptyCharts() {
+  renderBarChart('gTrendChart', 'No records yet', ['No data'], [0], 'rgba(45,108,223,0.45)', 'Input', 'Output');
+  renderBarChart('cvTrendChart', 'No records yet', ['No data'], [0], 'rgba(255,149,0,0.45)', 'Input', 'Output');
+  renderBarChart('deptChart', 'No records yet', ['No data'], [0], 'rgba(210,63,63,0.45)', 'Input', 'Output');
+  renderBarChart('machineChart', 'No records yet', ['No data'], [0], 'rgba(155,89,182,0.45)', 'Input', 'Output');
+}
+
+function getChartTextColor() {
+  return getComputedStyle(document.body).getPropertyValue('--text-primary').trim() || '#1f2937';
+}
+
+function getChartGridColor() {
+  return getComputedStyle(document.body).getPropertyValue('--border-color').trim() || 'rgba(120,120,120,0.25)';
+}
+
+function chartOptions(xTitle, yTitle) {
+  const textColor = getChartTextColor();
+  const gridColor = getChartGridColor();
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { enabled: true }
+    },
+    scales: {
+      x: {
+        title: { display: true, text: xTitle, color: textColor, font: { weight: '600' } },
+        ticks: { color: textColor },
+        grid: { color: gridColor }
+      },
+      y: {
+        beginAtZero: true,
+        title: { display: true, text: yTitle, color: textColor, font: { weight: '600' } },
+        ticks: { color: textColor },
+        grid: { color: gridColor }
+      }
+    }
+  };
+}
+
+function renderChart(canvasId, label, labels, values, color, xTitle, yTitle) {
   const ctx = document.getElementById(canvasId)?.getContext('2d');
   if (!ctx) return;
-  new Chart(ctx, {
+  if (typeof Chart === 'undefined') {
+    drawCanvasFallback(canvasId, label, labels, values, color, xTitle, yTitle, 'line');
+    return;
+  }
+  const chart = new Chart(ctx, {
     type: 'line',
     data: {
       labels,
       datasets: [{ label, data: values, backgroundColor: color, borderColor: color, fill: false, tension: 0.3 }]
     },
-    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    options: chartOptions(xTitle, yTitle)
   });
+  dashboardCharts.push(chart);
 }
 
-function renderLineChart(canvasId, label, labels, values, color) {
-  renderChart(canvasId, label, labels, values, color);
-}
-
-function renderBarChart(canvasId, label, labels, values, color) {
+function renderBarChart(canvasId, label, labels, values, color, xTitle, yTitle) {
   const ctx = document.getElementById(canvasId)?.getContext('2d');
   if (!ctx) return;
-  new Chart(ctx, {
+  if (typeof Chart === 'undefined') {
+    drawCanvasFallback(canvasId, label, labels, values, color, xTitle, yTitle, 'bar');
+    return;
+  }
+  const chart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels,
       datasets: [{ label, data: values, backgroundColor: color }]
     },
-    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    options: chartOptions(xTitle, yTitle)
   });
+  dashboardCharts.push(chart);
+}
+
+function drawCanvasFallback(canvasId, label, labels, values, color, xTitle, yTitle, type) {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas?.getContext('2d');
+  if (!canvas || !ctx) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.max(320, Math.floor(rect.width * dpr));
+  canvas.height = Math.floor(260 * dpr);
+  ctx.scale(dpr, dpr);
+
+  const width = canvas.width / dpr;
+  const height = canvas.height / dpr;
+  const pad = { left: 54, right: 18, top: 18, bottom: 52 };
+  const plotW = width - pad.left - pad.right;
+  const plotH = height - pad.top - pad.bottom;
+  const maxValue = Math.max(...values, 1);
+  const textColor = getChartTextColor();
+  const gridColor = getChartGridColor();
+
+  ctx.clearRect(0, 0, width, height);
+  ctx.font = '12px Arial';
+  ctx.fillStyle = textColor;
+  ctx.strokeStyle = gridColor;
+  ctx.lineWidth = 1;
+
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (plotH / 4) * i;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(width - pad.right, y);
+    ctx.stroke();
+    ctx.fillText(String(round(maxValue - (maxValue / 4) * i)), 8, y + 4);
+  }
+
+  ctx.strokeStyle = textColor;
+  ctx.beginPath();
+  ctx.moveTo(pad.left, pad.top);
+  ctx.lineTo(pad.left, height - pad.bottom);
+  ctx.lineTo(width - pad.right, height - pad.bottom);
+  ctx.stroke();
+
+  const points = values.map((value, index) => {
+    const x = type === 'bar'
+      ? pad.left + (plotW / Math.max(labels.length, 1)) * (index + 0.5)
+      : pad.left + (plotW / Math.max(labels.length - 1, 1)) * index;
+    const y = pad.top + plotH - (value / maxValue) * plotH;
+    return { x, y, value };
+  });
+
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  if (type === 'bar') {
+    const barW = Math.max(20, plotW / Math.max(labels.length, 1) * 0.55);
+    points.forEach(point => {
+      ctx.fillRect(point.x - barW / 2, point.y, barW, height - pad.bottom - point.y);
+    });
+  } else {
+    ctx.beginPath();
+    points.forEach((point, index) => {
+      if (index === 0) ctx.moveTo(point.x, point.y);
+      else ctx.lineTo(point.x, point.y);
+    });
+    ctx.stroke();
+    points.forEach(point => {
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, 3, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  }
+
+  ctx.fillStyle = textColor;
+  labels.forEach((item, index) => {
+    const x = type === 'bar'
+      ? pad.left + (plotW / Math.max(labels.length, 1)) * (index + 0.5)
+      : pad.left + (plotW / Math.max(labels.length - 1, 1)) * index;
+    ctx.fillText(String(item).slice(0, 10), Math.min(x, width - 74), height - 28);
+  });
+  ctx.fillText(xTitle, pad.left + plotW / 2 - 24, height - 8);
+  ctx.save();
+  ctx.translate(14, pad.top + plotH / 2 + 28);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText(yTitle || label, 0, 0);
+  ctx.restore();
 }
