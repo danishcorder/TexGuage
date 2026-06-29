@@ -132,6 +132,15 @@ function updateLengthDisplay() {
 
 // Validate a single sample input
 function validateSampleInput(input) {
+  // Only validate for Simplex department
+  if (!reportState.isSimplex) {
+    // Clear any existing validation for non-Simplex departments
+    input.classList.remove('validation-error');
+    const existingError = input.parentElement.querySelector('.validation-error-message');
+    if (existingError) existingError.remove();
+    return true;
+  }
+  
   const minWeight = parseFloat(document.getElementById('minWeight')?.value || 0);
   const maxWeight = parseFloat(document.getElementById('maxWeight')?.value || 0);
   const sampleValue = parseFloat(input.value);
@@ -175,6 +184,9 @@ function validateAllSamples() {
 
 // Check if any sample has validation error
 function hasValidationErrors() {
+  // Only check for validation errors in Simplex department
+  if (!reportState.isSimplex) return false;
+  
   const sampleInputs = getAllSampleInputs();
   return sampleInputs.some(input => input && input.classList.contains('validation-error'));
 }
@@ -568,6 +580,8 @@ function saveRecord(department, isSimplex) {
   const cvValue = sampleCount > 0 ? cvPercent(sampleValues) : 0;
   const gMin = Number(document.getElementById('gMin')?.value || 0);
   const gMax = Number(document.getElementById('gMax')?.value || 0);
+  const minWeight = parseFloat(document.getElementById('minWeight')?.value || 0);
+  const maxWeight = parseFloat(document.getElementById('maxWeight')?.value || 0);
 
   let gValue = 0;
   if (isSimplex) {
@@ -577,7 +591,18 @@ function saveRecord(department, isSimplex) {
     const sampleLengthYards = parseInt(document.getElementById('sampleLength')?.value || 6);
     gValue = gyPercent(meanValue, sampleLengthYards);
   }
-  const status = evaluateRange(gValue, gMin, gMax);
+  
+  // Check if any sample weight is out of range (only for Simplex)
+  let recordStatus = 'ACCEPTED';
+  if (isSimplex) {
+    const hasOutOfRangeSample = sampleValues.some(sample => {
+      return sample > 0 && (sample < minWeight || sample > maxWeight);
+    });
+    
+    if (hasOutOfRangeSample) {
+      recordStatus = 'REJECTED';
+    }
+  }
 
   const record = {
     date: document.getElementById('date')?.value,
@@ -590,7 +615,7 @@ function saveRecord(department, isSimplex) {
     sd: roundSD(sdValue),
     cv: roundCV(cvValue),
     g: isSimplex ? roundHank(gValue) : roundGY(gValue),
-    status: status.status,
+    status: recordStatus,
     targetWeight: undefined,
     sampleLength: parseInt(document.getElementById('sampleLength')?.value || 6),
     lengthYards: isSimplex ? parseInt(document.getElementById('sampleLength')?.value || 6) : undefined,
