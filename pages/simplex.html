@@ -27,29 +27,20 @@
       <header class="page-header">
         <div>
           <h1>🧵 Simplex - Data Entry</h1>
-          <p>Enter Hank Roving sample values. System calculates Mean, SD, CV%, and Hank Roving value automatically.</p>
+         
         </div>
       </header>
 
-      <div class="card" style="background: var(--accent-light); border-left: 4px solid var(--accent);">
-        <p style="font-size: 0.9rem; color: var(--text-primary);">
-          <strong>📝 How to use:</strong><br>
-          1️⃣ Select <strong>Date</strong>, <strong>Shift</strong>, and <strong>Machine Number</strong><br>
-          2️⃣ Enter <strong>Count</strong> and <strong>Length (Yards)</strong><br>
-          3️⃣ Enter at least <strong>2 Hank Sample values</strong> below<br>
-          4️⃣ Set <strong>Target G/Y% Min/Max</strong> limits (default 109-111)<br>
-          5️⃣ Check status — if <span style="color:#2f9c4d;">🟢 ACCEPTED</span> click <strong>💾 Save Record</strong>
-        </p>
-      </div>
 
       <section class="card entry-card">
         <h3 style="margin-bottom:12px;">📋 Basic Information</h3>
         <div class="form-grid">
           <label>📅 Date<input id="date" type="date"></label>
           <label>⏰ Shift
-            <select id="shift">
-              <option value="Day">🌞 Day</option>
-              <option value="Night">🌙 Night</option>
+           <select id="shift">
+              <option value="Day"> A (5AM - 1PM)</option>
+              <option value="Night">B (1PM - 10PM)</option>
+               <option value="Night">C (10PM - 5AM)</option>
             </select>
           </label>
           <label>🔢 Machine Number
@@ -65,9 +56,39 @@
           </label>
           <label>👤 Operator Name<input id="operator" type="text" placeholder="e.g. Muhammad Ali"></label>
           <label>🔢 Count<input id="count" type="number" step="0.01" placeholder="e.g. 0.15"></label>
-          <label>📏 Length (Yards)<input id="lengthYards" type="number" step="0.01" placeholder="e.g. 1.00" value="1"></label>
-          <label>📊 Target G/Y% Min<input id="gMin" type="number" placeholder="109" value="109"></label>
-          <label>📊 Target G/Y% Max<input id="gMax" type="number" placeholder="111" value="111"></label>
+          <label>🔢 No of Samples
+            <select id="noOfSamples">
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6" selected>6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+            </select>
+          </label>
+          <label>📏 Length of Sample
+            <select id="sampleLength">
+              <option value="1">1 Yard</option>
+              <option value="2">2 Yards</option>
+              <option value="3">3 Yards</option>
+              <option value="4">4 Yards</option>
+              <option value="5">5 Yards</option>
+              <option value="6" selected>6 Yards</option>
+              <option value="7">7 Yard</option>
+              <option value="8">8 Yards</option>
+              <option value="9">9 Yards</option>
+              <option value="10">10 Yards</option>
+            </select>
+          </label>
+          <label>📏 Length Display (Yard → Meter)<span id="lengthDisplay" style="font-weight:600;color:var(--text-primary);padding:9px 0;">6 yd / 5.4864 m</span></label>
+          <label>📏 Length Display (Meter → Yard)<span id="lengthDisplayMeter" style="font-weight:600;color:var(--text-primary);padding:9px 0;">5.4864 m / 6.0000 yd</span></label>
+          <label>⚖️ Minimum Weight (g)<input id="minWeight" type="number" step="0.01" readonly></label>
+          <label>⚖️ Maximum Weight (g)<input id="maxWeight" type="number" step="0.01" readonly></label>
+          <label>📊 Target HR% Min<input id="gMin" type="number" placeholder="109" value="109"></label>
+          <label>📊 Target HR% Max<input id="gMax" type="number" placeholder="111" value="111"></label>
         </div>
 
         <h3 style="margin-top:20px; margin-bottom:12px;">🧶 Hank Roving Samples <span style="font-weight:400; color:var(--text-muted); font-size:0.85rem;">(Enter at least 2 - leave others empty if not needed)</span></h3>
@@ -78,6 +99,10 @@
           <label>Sample 4<input id="s4" type="number" step="0.01" placeholder="0.00"></label>
           <label>Sample 5<input id="s5" type="number" step="0.01" placeholder="0.00"></label>
           <label>Sample 6<input id="s6" type="number" step="0.01" placeholder="0.00"></label>
+          <label>Sample 7<input id="s7" type="number" step="0.01" placeholder="0.00"></label>
+          <label>Sample 8<input id="s8" type="number" step="0.01" placeholder="0.00"></label>
+          <label>Sample 9<input id="s9" type="number" step="0.01" placeholder="0.00"></label>
+          <label>Sample 10<input id="s10" type="number" step="0.01" placeholder="0.00"></label>
         </div>
 
         <!-- Calculation Results -->
@@ -96,6 +121,7 @@
           <button id="scaleBtn" class="secondary">📡 Connect Scale</button>
           <button id="excelBtn" class="secondary">📥 Download Simplex Report</button>
           <button type="button" class="secondary" onclick="clearAllInputs()">🔄 Clear Form</button>
+          <button type="button" class="secondary" onclick="clearAllRecords()" style="background:var(--danger-light);color:var(--danger);border-color:var(--danger);">🗑 Clear All Records</button>
         </div>
       </section>
 
@@ -108,8 +134,12 @@
         <div class="filters-row">
           <input id="searchText" type="search" placeholder="🔍 Search by operator, machine...">
           <input id="filterDate" type="date" title="Filter by date">
-          <select id="filterShift" title="Filter by shift"><option value="">All Shifts</option><option>Day</option><option>Night</option></select>
-          <select id="filterMachine" title="Filter by machine">
+         <select id="filterShift" title="Filter by shift"> 
+              <option value="Day"> A (5AM - 1PM)</option>
+              <option value="Night">B (1PM - 10PM)</option>
+              <option value="Night">C (10PM - 5AM)</option>
+          </select>
+          <select>
             <option value="">All Machines</option>
             <option>S1</option><option>S2</option><option>S3</option><option>S4</option><option>S5</option>
             <option>S6</option><option>S7</option><option>S8</option><option>S9</option><option>S10</option>

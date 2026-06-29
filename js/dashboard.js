@@ -57,10 +57,126 @@ function setDefaultDate(target) {
   target.value = new Date().toISOString().slice(0, 10);
 }
 
-function getValidSampleValues() {
-  return ['s1','s2','s3','s4','s5','s6']
-    .map(id => Number(document.getElementById(id)?.value) || 0)
+// Get values from visible (enabled) sample inputs only
+function getVisibleSampleValues() {
+  return ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10']
+    .map(id => document.getElementById(id))
+    .filter(input => input && !input.disabled)
+    .map(input => Number(input.value) || 0)
     .filter(v => v > 0);
+}
+
+// Get all sample input elements
+function getAllSampleInputs() {
+  return ['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10'].map(id => document.getElementById(id));
+}
+
+// Update sample input visibility based on "No of Samples" dropdown
+function updateSampleVisibility() {
+  const noOfSamples = parseInt(document.getElementById('noOfSamples')?.value || 6);
+  const sampleInputs = getAllSampleInputs();
+  
+  sampleInputs.forEach((input, index) => {
+    if (!input) return;
+    const sampleNumber = index + 1;
+    if (sampleNumber <= noOfSamples) {
+      input.disabled = false;
+      input.closest('label').style.display = '';
+      input.classList.remove('validation-error');
+    } else {
+      input.disabled = true;
+      input.value = '';
+      input.closest('label').style.display = 'none';
+      input.classList.remove('validation-error');
+    }
+  });
+}
+
+// Update machine weight range display
+function updateMachineWeightRange() {
+  const machineSelect = document.getElementById('machine');
+  const minWeightInput = document.getElementById('minWeight');
+  const maxWeightInput = document.getElementById('maxWeight');
+  
+  if (!machineSelect || !minWeightInput || !maxWeightInput) return;
+  
+  const machineId = machineSelect.value;
+  const range = getMachineWeightRange(machineId);
+  
+  minWeightInput.value = range.min;
+  maxWeightInput.value = range.max;
+  
+  // Re-validate all visible samples with new range
+  validateAllSamples();
+}
+
+// Update length display in both units
+function updateLengthDisplay() {
+  const lengthSelect = document.getElementById('sampleLength');
+  const lengthDisplay = document.getElementById('lengthDisplay');
+  const lengthDisplayMeter = document.getElementById('lengthDisplayMeter');
+  
+  if (!lengthSelect) return;
+  
+  const yards = parseInt(lengthSelect.value);
+  const meters = yardsToMeters(yards);
+  
+  if (lengthDisplay) {
+    lengthDisplay.textContent = `${yards} yd / ${meters.toFixed(4)} m`;
+  }
+  
+  if (lengthDisplayMeter) {
+    lengthDisplayMeter.textContent = `${meters.toFixed(4)} m / ${yards.toFixed(4)} yd`;
+  }
+}
+
+// Validate a single sample input
+function validateSampleInput(input) {
+  const minWeight = parseFloat(document.getElementById('minWeight')?.value || 0);
+  const maxWeight = parseFloat(document.getElementById('maxWeight')?.value || 0);
+  const sampleValue = parseFloat(input.value);
+  
+  // Clear previous validation state
+  input.classList.remove('validation-error');
+  const existingError = input.parentElement.querySelector('.validation-error-message');
+  if (existingError) existingError.remove();
+  
+  // Only validate if there's a value
+  if (input.value && !Number.isNaN(sampleValue) && sampleValue > 0) {
+    const validation = validateSampleWeight(sampleValue, minWeight, maxWeight);
+    
+    if (!validation.valid) {
+      input.classList.add('validation-error');
+      const errorMsg = document.createElement('span');
+      errorMsg.className = 'validation-error-message';
+      errorMsg.textContent = validation.message;
+      errorMsg.style.cssText = 'color: var(--danger); font-size: 0.75rem; margin-top: 4px; display: block;';
+      input.parentElement.appendChild(errorMsg);
+    }
+  }
+  
+  return !input.classList.contains('validation-error');
+}
+
+// Validate all visible samples
+function validateAllSamples() {
+  const sampleInputs = getAllSampleInputs();
+  let allValid = true;
+  
+  sampleInputs.forEach(input => {
+    if (input && !input.disabled && input.value) {
+      const isValid = validateSampleInput(input);
+      if (!isValid) allValid = false;
+    }
+  });
+  
+  return allValid;
+}
+
+// Check if any sample has validation error
+function hasValidationErrors() {
+  const sampleInputs = getAllSampleInputs();
+  return sampleInputs.some(input => input && input.classList.contains('validation-error'));
 }
 
 // =================== ROLE MANAGEMENT ===================
@@ -166,12 +282,59 @@ function initializeDepartmentPage(department) {
   setMobileToggle();
   setDefaultDate(document.getElementById('date'));
 
+  // Add event listeners for new controls
+  const noOfSamples = document.getElementById('noOfSamples');
+  if (noOfSamples) {
+    noOfSamples.addEventListener('change', () => {
+      updateSampleVisibility();
+      refreshCalculations();
+    });
+  }
+
+  const sampleLength = document.getElementById('sampleLength');
+  if (sampleLength) {
+    sampleLength.addEventListener('change', () => {
+      updateLengthDisplay();
+      refreshCalculations();
+    });
+  }
+
+  const machineSelect = document.getElementById('machine');
+  if (machineSelect) {
+    machineSelect.addEventListener('change', () => {
+      updateMachineWeightRange();
+      refreshCalculations();
+    });
+  }
+
+  // Add input event listeners to sample inputs for validation
+  const sampleInputs = getAllSampleInputs();
+  sampleInputs.forEach(input => {
+    if (input) {
+      input.addEventListener('input', () => {
+        validateSampleInput(input);
+        refreshCalculations();
+      });
+      input.addEventListener('blur', () => {
+        validateSampleInput(input);
+      });
+    }
+  });
+
+  // Add event listeners to number inputs
   const inputs = Array.from(document.querySelectorAll('.entry-card input[type="number"]'));
-  inputs.forEach(input => input.addEventListener('input', refreshCalculations));
-  ['shift','machine','targetWeight','gMin','gMax'].forEach(id => {
+  inputs.forEach(input => {
+    if (!input.id.includes('s')) { // Skip sample inputs, already handled above
+      input.addEventListener('input', refreshCalculations);
+    }
+  });
+
+  ['shift','gMin','gMax'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.addEventListener('change', refreshCalculations);
-    if (el && (id === 'targetWeight' || id === 'gMin' || id === 'gMax')) el.addEventListener('input', refreshCalculations);
+    if (el) {
+      el.addEventListener('change', refreshCalculations);
+      el.addEventListener('input', refreshCalculations);
+    }
   });
 
   document.getElementById('saveBtn')?.addEventListener('click', () => saveRecord(department, false));
@@ -186,11 +349,12 @@ function initializeDepartmentPage(department) {
       scaleBtn.style.background = result.success ? 'var(--success)' : 'var(--danger)';
     });
     ScaleManager.onWeightRead = (weight) => {
-      // Auto-fill first empty sample
-      for (let i = 1; i <= 6; i++) {
-        const input = document.getElementById(`s${i}`);
+      // Auto-fill first empty visible sample
+      const visibleInputs = getVisibleSampleInputs();
+      for (const input of visibleInputs) {
         if (input && (input.value === '' || Number(input.value) === 0)) {
           input.value = weight;
+          validateSampleInput(input);
           input.dispatchEvent(new Event('input'));
           break;
         }
@@ -211,6 +375,15 @@ function initializeDepartmentPage(department) {
     }
   });
 
+  // Initialize machine weight range
+  updateMachineWeightRange();
+  
+  // Initialize sample visibility
+  updateSampleVisibility();
+  
+  // Initialize length display
+  updateLengthDisplay();
+
   reportState.records = loadRecords(department);
   refreshCalculations();
   updateReportTable();
@@ -223,12 +396,58 @@ function initializeSimplexPage() {
   setMobileToggle();
   setDefaultDate(document.getElementById('date'));
 
+  // Add event listeners for new controls
+  const noOfSamples = document.getElementById('noOfSamples');
+  if (noOfSamples) {
+    noOfSamples.addEventListener('change', () => {
+      updateSampleVisibility();
+      refreshCalculations();
+    });
+  }
+
+  const sampleLength = document.getElementById('sampleLength');
+  if (sampleLength) {
+    sampleLength.addEventListener('change', () => {
+      updateLengthDisplay();
+      refreshCalculations();
+    });
+  }
+
+  const machineSelect = document.getElementById('machine');
+  if (machineSelect) {
+    machineSelect.addEventListener('change', () => {
+      updateMachineWeightRange();
+      refreshCalculations();
+    });
+  }
+
+  // Add input event listeners to sample inputs for validation
+  const sampleInputs = getAllSampleInputs();
+  sampleInputs.forEach(input => {
+    if (input) {
+      input.addEventListener('input', () => {
+        validateSampleInput(input);
+        refreshCalculations();
+      });
+      input.addEventListener('blur', () => {
+        validateSampleInput(input);
+      });
+    }
+  });
+
+  // Add event listeners to number inputs
   const inputs = Array.from(document.querySelectorAll('.entry-card input[type="number"]'));
-  inputs.forEach(input => input.addEventListener('input', refreshCalculations));
-  ['shift','machine','hankFactor','lengthYards','gMin','gMax'].forEach(id => {
+  inputs.forEach(input => {
+    if (!input.id.includes('s')) {
+      input.addEventListener('input', refreshCalculations);
+    }
+  });
+
+  ['shift','gMin','gMax','count'].forEach(id => {
     const el = document.getElementById(id);
     if (el) {
-      el.addEventListener(el.type === 'number' ? 'input' : 'change', refreshCalculations);
+      el.addEventListener('input', refreshCalculations);
+      el.addEventListener('change', refreshCalculations);
     }
   });
 
@@ -246,13 +465,22 @@ function initializeSimplexPage() {
     }
   });
 
+  // Initialize machine weight range
+  updateMachineWeightRange();
+  
+  // Initialize sample visibility
+  updateSampleVisibility();
+  
+  // Initialize length display
+  updateLengthDisplay();
+
   reportState.records = loadRecords('Simplex');
   refreshCalculations();
   updateReportTable();
 }
 
 function refreshCalculations() {
-  const sampleValues = getValidSampleValues();
+  const sampleValues = getVisibleSampleValues();
   const sampleCount = sampleValues.length;
 
   const meanValue = sampleCount > 0 ? average(sampleValues) : 0;
@@ -262,30 +490,43 @@ function refreshCalculations() {
   const cvValue = sampleCount > 0 ? cvPercent(sampleValues) : 0;
   const cvDisplay = roundCV(cvValue);
 
-  const targetGrams = Number(document.getElementById('targetWeight')?.value || 0);
   const gMinDisplay = Number(document.getElementById('gMin')?.value || 0);
   const gMaxDisplay = Number(document.getElementById('gMax')?.value || 0);
 
   let gValue = 0;
   let gDisplay = '0.00';
+  
   if (reportState.isSimplex) {
-    const lengthYards = Number(document.getElementById('lengthYards')?.value || 1);
+    const lengthYards = parseInt(document.getElementById('sampleLength')?.value || 6);
     gValue = hankRovingValue(meanValue, lengthYards);
     gDisplay = roundHank(gValue);
   } else {
-    gValue = gyPercent(meanValue, targetGrams);
+    const sampleLengthYards = parseInt(document.getElementById('sampleLength')?.value || 6);
+    gValue = gyPercent(meanValue, sampleLengthYards);
     gDisplay = roundGY(gValue);
   }
 
   const status = evaluateRange(gValue, gMinDisplay, gMaxDisplay);
-  const valid = validateEntryFields({
-    date: document.getElementById('date')?.value,
-    shift: document.getElementById('shift')?.value,
-    machine: document.getElementById('machine')?.value,
-    operator: document.getElementById('operator')?.value,
-    samples: sampleValues,
-    minSamples: 2
-  });
+  
+  // Check if all required fields are filled
+  const requiredFields = ['date', 'shift', 'machine', 'operator'];
+  let allFieldsFilled = true;
+  for (const field of requiredFields) {
+    const val = document.getElementById(field)?.value;
+    if (!val) {
+      allFieldsFilled = false;
+      break;
+    }
+  }
+  
+  // Check if at least 2 samples are filled
+  const validSamples = sampleValues.filter(s => s > 0);
+  const hasEnoughSamples = validSamples.length >= 2;
+  
+  // Check for validation errors
+  const hasErrors = hasValidationErrors();
+  
+  const valid = allFieldsFilled && hasEnoughSamples && !hasErrors;
 
   const avgEl = document.getElementById('avgWeight');
   if (avgEl) avgEl.textContent = meanDisplay;
@@ -302,33 +543,39 @@ function refreshCalculations() {
       statusMessage.innerHTML = `ℹ️ Enter at least 2 samples (currently ${sampleCount} sample${sampleCount !== 1 ? 's' : ''})`;
       statusMessage.style.color = '#888';
       statusMessage.dataset.status = '';
+    } else if (hasErrors) {
+      statusMessage.innerHTML = `⚠️ Please fix validation errors before saving.`;
+      statusMessage.style.color = 'var(--danger)';
+      statusMessage.dataset.status = '';
     } else {
       const emoji = status.status === 'ACCEPTED' ? '🟢' : '🔴';
-      statusMessage.innerHTML = valid ? `${emoji} ${status.status}: ${status.message} (${sampleCount} samples)` : '⚠️ Complete all fields.';
+      statusMessage.innerHTML = `${emoji} ${status.status}: ${status.message} (${sampleCount} samples)`;
       statusMessage.style.color = status.color;
       statusMessage.dataset.status = valid ? status.status : '';
     }
   }
   
   const saveBtn = document.getElementById('saveBtn');
-  if (saveBtn) saveBtn.disabled = !valid || (sampleCount >= 2 && !status.accepted);
+  // Allow save if all fields are filled and at least 2 samples, even if rejected
+  if (saveBtn) saveBtn.disabled = !allFieldsFilled || !hasEnoughSamples;
 }
 
 function saveRecord(department, isSimplex) {
-  const sampleValues = getValidSampleValues();
+  const sampleValues = getVisibleSampleValues();
   const sampleCount = sampleValues.length;
   const meanValue = sampleCount > 0 ? average(sampleValues) : 0;
   const sdValue = (sampleCount > 1) ? standardDeviation(sampleValues) : 0;
   const cvValue = sampleCount > 0 ? cvPercent(sampleValues) : 0;
-  const targetGrams = Number(document.getElementById('targetWeight')?.value || 0);
   const gMin = Number(document.getElementById('gMin')?.value || 0);
   const gMax = Number(document.getElementById('gMax')?.value || 0);
 
   let gValue = 0;
   if (isSimplex) {
-    gValue = hankRovingValue(meanValue, Number(document.getElementById('lengthYards')?.value || 1));
+    const lengthYards = parseInt(document.getElementById('sampleLength')?.value || 6);
+    gValue = hankRovingValue(meanValue, lengthYards);
   } else {
-    gValue = gyPercent(meanValue, targetGrams);
+    const sampleLengthYards = parseInt(document.getElementById('sampleLength')?.value || 6);
+    gValue = gyPercent(meanValue, sampleLengthYards);
   }
   const status = evaluateRange(gValue, gMin, gMax);
 
@@ -344,8 +591,9 @@ function saveRecord(department, isSimplex) {
     cv: roundCV(cvValue),
     g: isSimplex ? roundHank(gValue) : roundGY(gValue),
     status: status.status,
-    targetWeight: targetGrams || undefined,
-    lengthYards: isSimplex ? Number(document.getElementById('lengthYards')?.value || 1) : undefined,
+    targetWeight: undefined,
+    sampleLength: parseInt(document.getElementById('sampleLength')?.value || 6),
+    lengthYards: isSimplex ? parseInt(document.getElementById('sampleLength')?.value || 6) : undefined,
     count: isSimplex ? Number(document.getElementById('count')?.value || 0) : undefined
   };
 
@@ -368,14 +616,24 @@ function clearInputs(isSimplex) {
   const cnt = document.getElementById('count');
   if (cnt) cnt.value = '';
   document.querySelectorAll('.entry-card input[type="number"]').forEach(input => {
-    if (!['targetWeight','gMin','gMax','lengthYards','hankFactor'].includes(input.id)) input.value = '';
+    if (!['gMin','gMax','sampleLength'].includes(input.id)) input.value = '';
+  });
+  
+  // Clear validation errors
+  const sampleInputs = getAllSampleInputs();
+  sampleInputs.forEach(input => {
+    if (input) {
+      input.classList.remove('validation-error');
+      const errorMsg = input.parentElement.querySelector('.validation-error-message');
+      if (errorMsg) errorMsg.remove();
+    }
   });
 }
 
 function clearAllInputs() {
   document.querySelectorAll('.entry-card input, .entry-card select').forEach(el => {
     if (el.type === 'text' || el.type === 'number') {
-      if (['gMin','gMax','targetWeight','lengthYards','hankFactor'].includes(el.id)) return;
+      if (['gMin','gMax','sampleLength'].includes(el.id)) return;
       el.value = '';
     }
     if (el.tagName === 'SELECT') el.selectedIndex = 0;
@@ -384,7 +642,47 @@ function clearAllInputs() {
   if (op) op.value = '';
   const cnt = document.getElementById('count');
   if (cnt) cnt.value = '';
+  
+  // Clear validation errors
+  const sampleInputs = getAllSampleInputs();
+  sampleInputs.forEach(input => {
+    if (input) {
+      input.classList.remove('validation-error');
+      const errorMsg = input.parentElement.querySelector('.validation-error-message');
+      if (errorMsg) errorMsg.remove();
+    }
+  });
+  
+  // Reset to defaults
+  const noOfSamples = document.getElementById('noOfSamples');
+  if (noOfSamples) noOfSamples.value = '6';
+  
+  const sampleLength = document.getElementById('sampleLength');
+  if (sampleLength) sampleLength.value = '6';
+  
+  updateSampleVisibility();
+  updateLengthDisplay();
+  updateMachineWeightRange();
   refreshCalculations();
+}
+
+function clearAllRecords() {
+  if (!confirm('Are you sure you want to clear all saved records? This action cannot be undone.')) {
+    return;
+  }
+  
+  const departments = ['Carding', 'Breaker', 'Finisher', 'Simplex'];
+  departments.forEach(dept => {
+    localStorage.removeItem(getStorageKey(dept));
+  });
+  
+  reportState.records = [];
+  updateReportTable();
+  refreshCalculations();
+  updateKPI();
+  updateAlertPanel();
+  
+  alert('All records have been cleared successfully.');
 }
 
 function updateReportTable() {
@@ -545,7 +843,7 @@ function buildDashboardCharts(data) {
   // Shift-wise performance
   const dayData = allData.filter(r => r.shift === 'Day').map(r => Number(r.g));
   const nightData = allData.filter(r => r.shift === 'Night').map(r => Number(r.g));
-  const shiftLabels = ['Day', 'Night'];
+  const shiftLabels = ['A', 'B','C'];
   const shiftValues = [
     dayData.length ? round(average(dayData)) : 0,
     nightData.length ? round(average(nightData)) : 0

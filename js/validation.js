@@ -35,3 +35,18 @@ function validateEntryFields(values) {
 function formatStatusBadge(statusObj) {
   return `<span class="status-badge" style="background:${statusObj.color};">${statusObj.status}</span>`;
 }
+
+// Check if any sample weight is outside the acceptable range
+function hasOutOfRangeSamples() {
+  const sampleInputs = ['s1', 's2', 's3', 's4', 's5', 's6','s7','s8','s9']
+    .map(id => document.getElementById(id))
+    .filter(input => input && !input.disabled && input.value);
+  
+  const minWeight = parseFloat(document.getElementById('minWeight')?.value || 0);
+  const maxWeight = parseFloat(document.getElementById('maxWeight')?.value || 0);
+  
+  return sampleInputs.some(input => {
+    const value = parseFloat(input.value);
+    return value < minWeight || value > maxWeight;
+  });
+}

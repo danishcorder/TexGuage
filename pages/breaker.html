@@ -27,30 +27,21 @@
       <header class="page-header">
         <div>
           <h1>🔧 Breaker Draw Frame - Data Entry</h1>
-          <p>Enter sample weights. System calculates Mean, SD (population), CV%, and G/Y% automatically.</p>
+          
         </div>
       </header>
 
-      <!-- Step-by-step instructions -->
-      <div class="card" style="background: var(--accent-light); border-left: 4px solid var(--accent);">
-        <p style="font-size: 0.9rem; color: var(--text-primary);">
-          <strong>📝 How to use:</strong><br>
-          1️⃣ Select <strong>Date</strong>, <strong>Shift</strong>, and <strong>Machine Number</strong> (B1 to B20)<br>
-          2️⃣ Enter <strong>Operator Name</strong><br>
-          3️⃣ Set <strong>Target Weight</strong> and <strong>G% Min/Max</strong> (default 109-111)<br>
-          4️⃣ Enter all <strong>6 Sample Weights</strong> below<br>
-          5️⃣ Check if status shows <span style="color:#2f9c4d;">🟢 ACCEPTED</span> — then click <strong>💾 Save Record</strong>
-        </p>
-      </div>
 
       <section class="card entry-card">
         <h3 style="margin-bottom:12px;">📋 Basic Information</h3>
         <div class="form-grid">
           <label>📅 Date<input id="date" type="date"></label>
           <label>⏰ Shift
+            </select>
             <select id="shift">
-              <option value="Day">🌞 Day</option>
-              <option value="Night">🌙 Night</option>
+              <option value="Day"> A (5AM - 1PM)</option>
+              <option value="Night">B (1PM - 10PM)</option>
+               <option value="Night">C (10PM - 5AM)</option>
             </select>
           </label>
           <label>🔢 Machine Number
@@ -65,7 +56,37 @@
             </select>
           </label>
           <label>👤 Operator Name<input id="operator" type="text" placeholder="e.g. Muhammad Ali"></label>
-          <label>🎯 Target Weight<input id="targetWeight" type="number" step="0.01" placeholder="e.g. 110" value="110"></label>
+          <label>🔢 No of Samples
+            <select id="noOfSamples">
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6" selected>6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+            </select>
+          </label>
+          <label>📏 Length of Sample
+            <select id="sampleLength">
+              <option value="1">1 Yard</option>
+              <option value="2">2 Yards</option>
+              <option value="3">3 Yards</option>
+              <option value="4">4 Yards</option>
+              <option value="5">5 Yards</option>
+              <option value="6" selected>6 Yards</option>
+              <option value="7">7 Yard</option>
+              <option value="8">8 Yards</option>
+              <option value="9">9 Yards</option>
+              <option value="10">10 Yards</option>
+            </select>
+          </label>
+          <label>📏 Length Display (Yard → Meter)<span id="lengthDisplay" style="font-weight:600;color:var(--text-primary);padding:9px 0;">6 yd / 5.4864 m</span></label>
+          <label>📏 Length Display (Meter → Yard)<span id="lengthDisplayMeter" style="font-weight:600;color:var(--text-primary);padding:9px 0;">5.4864 m / 6.0000 yd</span></label>
+          <label>⚖️ Minimum Weight (g)<input id="minWeight" type="number" step="0.01" readonly></label>
+          <label>⚖️ Maximum Weight (g)<input id="maxWeight" type="number" step="0.01" readonly></label>
           <label>📊 Target G/Y% Min<input id="gMin" type="number" step="0.1" placeholder="78.5" value="78.5"></label>
           <label>📊 Target G/Y% Max<input id="gMax" type="number" step="0.1" placeholder="81.5" value="81.5"></label>
         </div>
@@ -78,6 +99,10 @@
           <label>Sample 4<input id="s4" type="number" step="0.01" placeholder="0.00"></label>
           <label>Sample 5<input id="s5" type="number" step="0.01" placeholder="0.00"></label>
           <label>Sample 6<input id="s6" type="number" step="0.01" placeholder="0.00"></label>
+          <label>Sample 7<input id="s7" type="number" step="0.01" placeholder="0.00"></label>
+          <label>Sample 8<input id="s8" type="number" step="0.01" placeholder="0.00"></label>
+          <label>Sample 9<input id="s9" type="number" step="0.01" placeholder="0.00"></label>
+          <label>Sample 10<input id="s10" type="number" step="0.01" placeholder="0.00"></label>
         </div>
 
         <!-- Calculation Results -->
@@ -97,6 +122,7 @@
           <button id="scaleBtn" class="secondary">📡 Connect Scale</button>
           <button id="excelBtn" class="secondary">📥 Download Breaker Report</button>
           <button type="button" class="secondary" onclick="clearAllInputs()">🔄 Clear Form</button>
+          <button type="button" class="secondary" onclick="clearAllRecords()" style="background:var(--danger-light);color:var(--danger);border-color:var(--danger);">🗑 Clear All Records</button>
         </div>
       </section>
 
@@ -109,7 +135,11 @@
         <div class="filters-row">
           <input id="searchText" type="search" placeholder="🔍 Search by operator, machine...">
           <input id="filterDate" type="date" title="Filter by date">
-          <select id="filterShift" title="Filter by shift"><option value="">All Shifts</option><option>Day</option><option>Night</option></select>
+          <select id="filterShift" title="Filter by shift"> 
+              <option value="Day"> A (5AM - 1PM)</option>
+              <option value="Night">B (1PM - 10PM)</option>
+               <option value="Night">C (10PM - 5AM)</option>
+          </select>
           <select id="filterMachine" title="Filter by machine">
             <option value="">All Machines</option>
             <option>B1</option><option>B2</option><option>B3</option><option>B4</option><option>B5</option>
