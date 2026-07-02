@@ -1,0 +1,6 @@
+2026-07-01 22:19:15 | ERROR    | api | Diagnostics error: 'coroutine' object has no attribute 'get_diagnostics'
+2026-07-01 22:20:01 | ERROR    | api | Diagnostics error: 'coroutine' object has no attribute 'get_diagnostics'
+2026-07-01 22:20:11 | ERROR    | api | Diagnostics error: 'coroutine' object has no attribute 'get_diagnostics'
+2026-07-01 22:20:55 | ERROR    | api | Diagnostics error: 'coroutine' object has no attribute 'get_diagnostics'
+2026-07-01 22:21:54 | ERROR    | api | Diagnostics error: 'coroutine' object has no attribute 'get_diagnostics'
+2026-07-01 22:44:54 | ERROR    | api | Diagnostics error: 'coroutine' object has no attribute 'get_diagnostics'

@@ -377,45 +377,13 @@ function initializeDepartmentPage(department) {
   document.getElementById('saveBtn')?.addEventListener('click', () => saveRecord(department, false));
   document.getElementById('excelBtn')?.addEventListener('click', () => exportDepartmentToExcel(department, loadRecords(department)));
 
-  // Scale connection
-  const scaleBtn = document.getElementById('scaleBtn');
-  if (scaleBtn) {
-    // Reset scale connection status on page load
+  // Scale connection - Reset scale status on page load for all departments
+  if (typeof ScaleManager !== 'undefined') {
     ScaleManager.isConnected = false;
-    ScaleManager.stopSimulation();
+    ScaleManager.isReading = false;
+    ScaleManager.readLoopActive = false;
     ScaleManager.port = null;
     ScaleManager.reader = null;
-    
-    // Set button to default disconnected state
-    scaleBtn.textContent = '📡 Connect Scale';
-    scaleBtn.style.background = '';
-    
-    scaleBtn.addEventListener('click', async () => {
-      const result = await ScaleManager.connect();
-      if (result.success) {
-        scaleBtn.textContent = '🔗 Scale Connected';
-        scaleBtn.style.background = 'var(--success)';
-      } else {
-        scaleBtn.textContent = '❌ Scale Failed';
-        scaleBtn.style.background = 'var(--danger)';
-      }
-    });
-    
-    // For Carding department, don't auto-fill samples from scale - wait for manual input
-    if (department !== 'Carding') {
-      ScaleManager.onWeightRead = (weight) => {
-        // Auto-fill first empty visible sample
-        const visibleInputs = getVisibleSampleInputs();
-        for (const input of visibleInputs) {
-          if (input && (input.value === '' || Number(input.value) === 0)) {
-            input.value = weight;
-            validateSampleInput(input);
-            input.dispatchEvent(new Event('input'));
-            break;
-          }
-        }
-      };
-    }
   }
 
   // Filters

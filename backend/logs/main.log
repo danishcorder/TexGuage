@@ -1,0 +1,174 @@
+2026-07-01 22:12:19 | INFO     | main | Starting uvicorn server on 0.0.0.0:8000 (reload=False)
+2026-07-01 22:12:20 | INFO     | main | ==================================================
+2026-07-01 22:12:20 | INFO     | main | TexGauge IQ Backend Starting...
+2026-07-01 22:12:20 | INFO     | main | ==================================================
+2026-07-01 22:12:20 | INFO     | main | Server configured: 0.0.0.0:8000
+2026-07-01 22:12:20 | INFO     | main | TexGauge IQ Backend Started Successfully
+2026-07-01 22:12:20 | INFO     | main | ==================================================
+2026-07-01 22:12:57 | INFO     | main | Starting uvicorn server on 0.0.0.0:8000 (reload=False)
+2026-07-01 22:12:57 | INFO     | main | ==================================================
+2026-07-01 22:12:57 | INFO     | main | TexGauge IQ Backend Starting...
+2026-07-01 22:12:57 | INFO     | main | ==================================================
+2026-07-01 22:12:57 | INFO     | main | Server configured: 0.0.0.0:8000
+2026-07-01 22:12:57 | INFO     | main | TexGauge IQ Backend Started Successfully
+2026-07-01 22:12:57 | INFO     | main | ==================================================
+2026-07-01 22:12:57 | INFO     | main | ==================================================
+2026-07-01 22:12:57 | INFO     | main | TexGauge IQ Backend Shutting Down...
+2026-07-01 22:12:57 | INFO     | main | ==================================================
+2026-07-01 22:12:57 | INFO     | main | TexGauge IQ Backend Shutdown Complete
+2026-07-01 22:12:57 | INFO     | main | ==================================================
+2026-07-01 22:14:32 | INFO     | main | Starting uvicorn server on 0.0.0.0:8000 (reload=False)
+2026-07-01 22:14:32 | INFO     | main | ==================================================
+2026-07-01 22:14:32 | INFO     | main | TexGauge IQ Backend Starting...
+2026-07-01 22:14:32 | INFO     | main | ==================================================
+2026-07-01 22:14:32 | INFO     | main | Server configured: 0.0.0.0:8000
+2026-07-01 22:14:32 | INFO     | main | TexGauge IQ Backend Started Successfully
+2026-07-01 22:14:32 | INFO     | main | ==================================================
+2026-07-01 22:18:58 | INFO     | main | Starting uvicorn server on 0.0.0.0:8000 (reload=False)
+2026-07-01 22:18:58 | INFO     | main | ==================================================
+2026-07-01 22:18:58 | INFO     | main | TexGauge IQ Backend Starting...
+2026-07-01 22:18:58 | INFO     | main | ==================================================
+2026-07-01 22:18:58 | INFO     | main | Server configured: 0.0.0.0:8000
+2026-07-01 22:18:58 | INFO     | main | TexGauge IQ Backend Started Successfully
+2026-07-01 22:18:58 | INFO     | main | ==================================================
+2026-07-01 22:21:35 | INFO     | main | Starting uvicorn server on 0.0.0.0:8000 (reload=False)
+2026-07-01 22:21:35 | INFO     | main | ==================================================
+2026-07-01 22:21:35 | INFO     | main | TexGauge IQ Backend Starting...
+2026-07-01 22:21:35 | INFO     | main | ==================================================
+2026-07-01 22:21:35 | INFO     | main | Server configured: 0.0.0.0:8000
+2026-07-01 22:21:35 | INFO     | main | TexGauge IQ Backend Started Successfully
+2026-07-01 22:21:35 | INFO     | main | ==================================================
+2026-07-02 08:34:06 | INFO     | main | Starting uvicorn server on 0.0.0.0:8000 (reload=False)
+2026-07-02 08:34:06 | INFO     | main | ==================================================
+2026-07-02 08:34:06 | INFO     | main | TexGauge IQ Backend Starting...
+2026-07-02 08:34:06 | INFO     | main | ==================================================
+2026-07-02 08:34:06 | INFO     | main | Server configured: 0.0.0.0:8000
+2026-07-02 08:34:06 | INFO     | main | TexGauge IQ Backend Started Successfully
+2026-07-02 08:34:06 | INFO     | main | ==================================================
+2026-07-02 08:34:19 | INFO     | main | Starting uvicorn server on 0.0.0.0:8000 (reload=False)
+2026-07-02 08:34:19 | INFO     | main | ==================================================
+2026-07-02 08:34:19 | INFO     | main | TexGauge IQ Backend Starting...
+2026-07-02 08:34:19 | INFO     | main | ==================================================
+2026-07-02 08:34:19 | INFO     | main | Server configured: 0.0.0.0:8000
+2026-07-02 08:34:19 | INFO     | main | TexGauge IQ Backend Started Successfully
+2026-07-02 08:34:19 | INFO     | main | ==================================================
+2026-07-02 08:34:19 | INFO     | main | ==================================================
+2026-07-02 08:34:19 | INFO     | main | TexGauge IQ Backend Shutting Down...
+2026-07-02 08:34:19 | INFO     | main | ==================================================
+2026-07-02 08:34:19 | INFO     | main | TexGauge IQ Backend Shutdown Complete
+2026-07-02 08:34:19 | INFO     | main | ==================================================
+2026-07-02 08:37:12 | INFO     | main | Starting uvicorn server on 0.0.0.0:8000 (reload=False)
+2026-07-02 08:37:12 | INFO     | main | ==================================================
+2026-07-02 08:37:12 | INFO     | main | TexGauge IQ Backend Starting...
+2026-07-02 08:37:12 | INFO     | main | ==================================================
+2026-07-02 08:37:12 | INFO     | main | Server configured: 0.0.0.0:8000
+2026-07-02 08:37:12 | INFO     | main | TexGauge IQ Backend Started Successfully
+2026-07-02 08:37:12 | INFO     | main | ==================================================
+2026-07-02 08:37:35 | INFO     | main | Starting uvicorn server on 0.0.0.0:8000 (reload=False)
+2026-07-02 08:37:35 | INFO     | main | ==================================================
+2026-07-02 08:37:35 | INFO     | main | TexGauge IQ Backend Starting...
+2026-07-02 08:37:35 | INFO     | main | ==================================================
+2026-07-02 08:37:35 | INFO     | main | Server configured: 0.0.0.0:8000
+2026-07-02 08:37:35 | INFO     | main | TexGauge IQ Backend Started Successfully
+2026-07-02 08:37:35 | INFO     | main | ==================================================
+2026-07-02 08:37:35 | INFO     | main | ==================================================
+2026-07-02 08:37:35 | INFO     | main | TexGauge IQ Backend Shutting Down...
+2026-07-02 08:37:35 | INFO     | main | ==================================================
+2026-07-02 08:37:35 | INFO     | main | TexGauge IQ Backend Shutdown Complete
+2026-07-02 08:37:35 | INFO     | main | ==================================================
+2026-07-02 09:07:55 | INFO     | main | Starting uvicorn server on 0.0.0.0:8000 (reload=False)
+2026-07-02 09:07:55 | INFO     | main | ==================================================
+2026-07-02 09:07:55 | INFO     | main | TexGauge IQ Backend Starting...
+2026-07-02 09:07:55 | INFO     | main | ==================================================
+2026-07-02 09:07:55 | INFO     | main | Server configured: 0.0.0.0:8000
+2026-07-02 09:07:55 | INFO     | main | TexGauge IQ Backend Started Successfully
+2026-07-02 09:07:55 | INFO     | main | ==================================================
+2026-07-02 09:08:20 | INFO     | main | Starting uvicorn server on 0.0.0.0:8000 (reload=False)
+2026-07-02 09:08:20 | INFO     | main | ==================================================
+2026-07-02 09:08:20 | INFO     | main | TexGauge IQ Backend Starting...
+2026-07-02 09:08:20 | INFO     | main | ==================================================
+2026-07-02 09:08:20 | INFO     | main | Server configured: 0.0.0.0:8000
+2026-07-02 09:08:20 | INFO     | main | TexGauge IQ Backend Started Successfully
+2026-07-02 09:08:20 | INFO     | main | ==================================================
+2026-07-02 09:08:20 | INFO     | main | ==================================================
+2026-07-02 09:08:20 | INFO     | main | TexGauge IQ Backend Shutting Down...
+2026-07-02 09:08:20 | INFO     | main | ==================================================
+2026-07-02 09:08:20 | INFO     | main | TexGauge IQ Backend Shutdown Complete
+2026-07-02 09:08:20 | INFO     | main | ==================================================
+2026-07-02 09:09:51 | INFO     | main | Starting uvicorn server on 0.0.0.0:8000 (reload=False)
+2026-07-02 09:09:51 | INFO     | main | ==================================================
+2026-07-02 09:09:51 | INFO     | main | TexGauge IQ Backend Starting...
+2026-07-02 09:09:51 | INFO     | main | ==================================================
+2026-07-02 09:09:51 | INFO     | main | Server configured: 0.0.0.0:8000
+2026-07-02 09:09:51 | INFO     | main | TexGauge IQ Backend Started Successfully
+2026-07-02 09:09:51 | INFO     | main | ==================================================
+2026-07-02 09:09:51 | INFO     | main | ==================================================
+2026-07-02 09:09:51 | INFO     | main | TexGauge IQ Backend Shutting Down...
+2026-07-02 09:09:51 | INFO     | main | ==================================================
+2026-07-02 09:09:51 | INFO     | main | TexGauge IQ Backend Shutdown Complete
+2026-07-02 09:09:51 | INFO     | main | ==================================================
+2026-07-02 09:10:01 | INFO     | main | Starting uvicorn server on 0.0.0.0:8000 (reload=False)
+2026-07-02 09:10:01 | INFO     | main | ==================================================
+2026-07-02 09:10:01 | INFO     | main | TexGauge IQ Backend Starting...
+2026-07-02 09:10:01 | INFO     | main | ==================================================
+2026-07-02 09:10:01 | INFO     | main | Server configured: 0.0.0.0:8000
+2026-07-02 09:10:01 | INFO     | main | TexGauge IQ Backend Started Successfully
+2026-07-02 09:10:01 | INFO     | main | ==================================================
+2026-07-02 09:10:01 | INFO     | main | ==================================================
+2026-07-02 09:10:01 | INFO     | main | TexGauge IQ Backend Shutting Down...
+2026-07-02 09:10:01 | INFO     | main | ==================================================
+2026-07-02 09:10:01 | INFO     | main | TexGauge IQ Backend Shutdown Complete
+2026-07-02 09:10:01 | INFO     | main | ==================================================
+2026-07-02 09:11:48 | INFO     | main | Starting uvicorn server on 0.0.0.0:8000 (reload=False)
+2026-07-02 09:11:49 | INFO     | main | ==================================================
+2026-07-02 09:11:49 | INFO     | main | TexGauge IQ Backend Starting...
+2026-07-02 09:11:49 | INFO     | main | ==================================================
+2026-07-02 09:11:49 | INFO     | main | Server configured: 0.0.0.0:8000
+2026-07-02 09:11:49 | INFO     | main | TexGauge IQ Backend Started Successfully
+2026-07-02 09:11:49 | INFO     | main | ==================================================
+2026-07-02 09:11:49 | INFO     | main | ==================================================
+2026-07-02 09:11:49 | INFO     | main | TexGauge IQ Backend Shutting Down...
+2026-07-02 09:11:49 | INFO     | main | ==================================================
+2026-07-02 09:11:49 | INFO     | main | TexGauge IQ Backend Shutdown Complete
+2026-07-02 09:11:49 | INFO     | main | ==================================================
+2026-07-02 09:16:16 | INFO     | main | Starting uvicorn server on 0.0.0.0:8000 (reload=False)
+2026-07-02 09:16:17 | INFO     | main | ==================================================
+2026-07-02 09:16:17 | INFO     | main | TexGauge IQ Backend Starting...
+2026-07-02 09:16:17 | INFO     | main | ==================================================
+2026-07-02 09:16:17 | INFO     | main | Server configured: 0.0.0.0:8000
+2026-07-02 09:16:17 | INFO     | main | TexGauge IQ Backend Started Successfully
+2026-07-02 09:16:17 | INFO     | main | ==================================================
+2026-07-02 09:16:17 | INFO     | main | ==================================================
+2026-07-02 09:16:17 | INFO     | main | TexGauge IQ Backend Shutting Down...
+2026-07-02 09:16:17 | INFO     | main | ==================================================
+2026-07-02 09:16:17 | INFO     | main | TexGauge IQ Backend Shutdown Complete
+2026-07-02 09:16:17 | INFO     | main | ==================================================
+2026-07-02 09:19:03 | INFO     | main | ==================================================
+2026-07-02 09:19:03 | INFO     | main | TexGauge IQ Backend Shutting Down...
+2026-07-02 09:19:03 | INFO     | main | ==================================================
+2026-07-02 09:19:03 | INFO     | main | TexGauge IQ Backend Shutdown Complete
+2026-07-02 09:19:03 | INFO     | main | ==================================================
+2026-07-02 09:19:10 | INFO     | main | Starting uvicorn server on 0.0.0.0:8000 (reload=False)
+2026-07-02 09:19:10 | INFO     | main | ==================================================
+2026-07-02 09:19:10 | INFO     | main | TexGauge IQ Backend Starting...
+2026-07-02 09:19:10 | INFO     | main | ==================================================
+2026-07-02 09:19:10 | INFO     | main | Server configured: 0.0.0.0:8000
+2026-07-02 09:19:10 | INFO     | main | TexGauge IQ Backend Started Successfully
+2026-07-02 09:19:10 | INFO     | main | ==================================================
+2026-07-02 09:25:19 | INFO     | main | ==================================================
+2026-07-02 09:25:19 | INFO     | main | TexGauge IQ Backend Shutting Down...
+2026-07-02 09:25:19 | INFO     | main | ==================================================
+2026-07-02 09:25:19 | INFO     | main | TexGauge IQ Backend Shutdown Complete
+2026-07-02 09:25:19 | INFO     | main | ==================================================
+2026-07-02 09:25:23 | INFO     | main | Starting uvicorn server on 0.0.0.0:8000 (reload=False)
+2026-07-02 09:25:23 | INFO     | main | ==================================================
+2026-07-02 09:25:23 | INFO     | main | TexGauge IQ Backend Starting...
+2026-07-02 09:25:23 | INFO     | main | ==================================================
+2026-07-02 09:25:23 | INFO     | main | Server configured: 0.0.0.0:8000
+2026-07-02 09:25:23 | INFO     | main | TexGauge IQ Backend Started Successfully
+2026-07-02 09:25:23 | INFO     | main | ==================================================
+2026-07-02 09:34:50 | INFO     | main | ==================================================
+2026-07-02 09:34:50 | INFO     | main | TexGauge IQ Backend Shutting Down...
+2026-07-02 09:34:50 | INFO     | main | ==================================================
+2026-07-02 09:34:50 | INFO     | main | TexGauge IQ Backend Shutdown Complete
+2026-07-02 09:34:50 | INFO     | main | ==================================================

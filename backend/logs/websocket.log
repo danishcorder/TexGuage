@@ -1,0 +1,92 @@
+2026-07-01 22:12:20 | INFO     | websocket | WebSocket broadcast loop started
+2026-07-01 22:12:57 | INFO     | websocket | WebSocket broadcast loop started
+2026-07-01 22:12:57 | INFO     | websocket | WebSocket broadcast loop stopped
+2026-07-01 22:12:57 | INFO     | websocket | WebSocket manager cleaned up
+2026-07-01 22:14:32 | INFO     | websocket | WebSocket broadcast loop started
+2026-07-01 22:18:58 | INFO     | websocket | WebSocket broadcast loop started
+2026-07-01 22:21:35 | INFO     | websocket | WebSocket broadcast loop started
+2026-07-01 22:24:54 | INFO     | websocket | WebSocket client connected. Total: 1
+2026-07-01 22:25:01 | INFO     | websocket | WebSocket client disconnected. Total: 0
+2026-07-01 22:25:02 | INFO     | websocket | WebSocket client connected. Total: 1
+2026-07-01 22:25:24 | INFO     | websocket | WebSocket client disconnected. Total: 0
+2026-07-01 22:25:24 | INFO     | websocket | WebSocket client connected. Total: 1
+2026-07-01 22:25:29 | INFO     | websocket | WebSocket client disconnected. Total: 0
+2026-07-01 22:25:29 | INFO     | websocket | WebSocket client connected. Total: 1
+2026-07-01 22:25:38 | INFO     | websocket | WebSocket client disconnected. Total: 0
+2026-07-01 22:25:38 | INFO     | websocket | WebSocket client connected. Total: 1
+2026-07-01 22:25:44 | INFO     | websocket | WebSocket client disconnected. Total: 0
+2026-07-01 22:25:52 | INFO     | websocket | WebSocket client connected. Total: 1
+2026-07-01 22:26:00 | INFO     | websocket | WebSocket client disconnected. Total: 0
+2026-07-01 22:26:00 | INFO     | websocket | WebSocket client connected. Total: 1
+2026-07-01 22:26:04 | INFO     | websocket | WebSocket client disconnected. Total: 0
+2026-07-01 22:26:04 | INFO     | websocket | WebSocket client connected. Total: 1
+2026-07-01 22:26:37 | INFO     | websocket | WebSocket client disconnected. Total: 0
+2026-07-01 22:31:17 | INFO     | websocket | WebSocket client connected. Total: 1
+2026-07-01 22:31:24 | INFO     | websocket | WebSocket client disconnected. Total: 0
+2026-07-01 22:31:25 | INFO     | websocket | WebSocket client connected. Total: 1
+2026-07-01 22:32:37 | INFO     | websocket | WebSocket client connected. Total: 2
+2026-07-01 22:32:44 | INFO     | websocket | WebSocket client disconnected. Total: 1
+2026-07-01 22:32:44 | INFO     | websocket | WebSocket client connected. Total: 2
+2026-07-01 22:38:15 | INFO     | websocket | WebSocket client disconnected. Total: 1
+2026-07-01 22:38:15 | INFO     | websocket | WebSocket client disconnected. Total: 1
+2026-07-01 22:41:15 | INFO     | websocket | WebSocket client disconnected. Total: 0
+2026-07-01 22:41:15 | INFO     | websocket | WebSocket client disconnected. Total: 0
+2026-07-02 08:34:06 | INFO     | websocket | WebSocket broadcast loop started
+2026-07-02 08:34:19 | INFO     | websocket | WebSocket broadcast loop started
+2026-07-02 08:34:19 | INFO     | websocket | WebSocket broadcast loop stopped
+2026-07-02 08:34:19 | INFO     | websocket | WebSocket manager cleaned up
+2026-07-02 08:37:12 | INFO     | websocket | WebSocket broadcast loop started
+2026-07-02 08:37:35 | INFO     | websocket | WebSocket broadcast loop started
+2026-07-02 08:37:35 | INFO     | websocket | WebSocket broadcast loop stopped
+2026-07-02 08:37:35 | INFO     | websocket | WebSocket manager cleaned up
+2026-07-02 08:39:21 | INFO     | websocket | WebSocket client connected. Total: 1
+2026-07-02 08:39:23 | INFO     | websocket | WebSocket client disconnected. Total: 0
+2026-07-02 08:39:23 | INFO     | websocket | WebSocket client connected. Total: 1
+2026-07-02 08:57:34 | INFO     | websocket | WebSocket client disconnected. Total: 0
+2026-07-02 08:57:34 | INFO     | websocket | WebSocket client disconnected. Total: 0
+2026-07-02 08:59:22 | INFO     | websocket | WebSocket client connected. Total: 1
+2026-07-02 09:07:55 | INFO     | websocket | WebSocket broadcast loop started
+2026-07-02 09:08:03 | INFO     | websocket | WebSocket client connected. Total: 1
+2026-07-02 09:08:20 | INFO     | websocket | WebSocket broadcast loop started
+2026-07-02 09:08:20 | INFO     | websocket | WebSocket broadcast loop stopped
+2026-07-02 09:08:20 | INFO     | websocket | WebSocket manager cleaned up
+2026-07-02 09:09:51 | INFO     | websocket | WebSocket broadcast loop started
+2026-07-02 09:09:51 | INFO     | websocket | WebSocket broadcast loop stopped
+2026-07-02 09:09:51 | INFO     | websocket | WebSocket manager cleaned up
+2026-07-02 09:10:01 | INFO     | websocket | WebSocket broadcast loop started
+2026-07-02 09:10:01 | INFO     | websocket | WebSocket broadcast loop stopped
+2026-07-02 09:10:01 | INFO     | websocket | WebSocket manager cleaned up
+2026-07-02 09:10:13 | INFO     | websocket | WebSocket client disconnected. Total: 0
+2026-07-02 09:10:13 | INFO     | websocket | WebSocket client disconnected. Total: 0
+2026-07-02 09:10:46 | INFO     | websocket | WebSocket client connected. Total: 1
+2026-07-02 09:10:50 | INFO     | websocket | WebSocket client disconnected. Total: 0
+2026-07-02 09:10:50 | INFO     | websocket | WebSocket client connected. Total: 1
+2026-07-02 09:11:49 | INFO     | websocket | WebSocket broadcast loop started
+2026-07-02 09:11:49 | INFO     | websocket | WebSocket broadcast loop stopped
+2026-07-02 09:11:49 | INFO     | websocket | WebSocket manager cleaned up
+2026-07-02 09:16:17 | INFO     | websocket | WebSocket broadcast loop started
+2026-07-02 09:16:17 | INFO     | websocket | WebSocket broadcast loop stopped
+2026-07-02 09:16:17 | INFO     | websocket | WebSocket manager cleaned up
+2026-07-02 09:16:51 | INFO     | websocket | WebSocket client connected. Total: 2
+2026-07-02 09:19:02 | INFO     | websocket | WebSocket client disconnected. Total: 1
+2026-07-02 09:19:02 | INFO     | websocket | WebSocket client disconnected. Total: 0
+2026-07-02 09:19:03 | INFO     | websocket | WebSocket broadcast loop stopped
+2026-07-02 09:19:03 | INFO     | websocket | WebSocket manager cleaned up
+2026-07-02 09:19:10 | INFO     | websocket | WebSocket broadcast loop started
+2026-07-02 09:19:10 | INFO     | websocket | WebSocket client connected. Total: 1
+2026-07-02 09:19:12 | INFO     | websocket | WebSocket client connected. Total: 2
+2026-07-02 09:25:18 | INFO     | websocket | WebSocket client disconnected. Total: 1
+2026-07-02 09:25:18 | INFO     | websocket | WebSocket client disconnected. Total: 0
+2026-07-02 09:25:19 | INFO     | websocket | WebSocket broadcast loop stopped
+2026-07-02 09:25:19 | INFO     | websocket | WebSocket manager cleaned up
+2026-07-02 09:25:23 | INFO     | websocket | WebSocket broadcast loop started
+2026-07-02 09:25:23 | INFO     | websocket | WebSocket client connected. Total: 1
+2026-07-02 09:25:23 | INFO     | websocket | WebSocket client connected. Total: 2
+2026-07-02 09:25:33 | INFO     | websocket | WebSocket client disconnected. Total: 1
+2026-07-02 09:25:33 | INFO     | websocket | WebSocket client connected. Total: 2
+2026-07-02 09:33:53 | INFO     | websocket | WebSocket client disconnected. Total: 1
+2026-07-02 09:33:53 | INFO     | websocket | WebSocket client disconnected. Total: 1
+2026-07-02 09:34:03 | INFO     | websocket | WebSocket client disconnected. Total: 0
+2026-07-02 09:34:03 | INFO     | websocket | WebSocket client disconnected. Total: 0
+2026-07-02 09:34:50 | INFO     | websocket | WebSocket broadcast loop stopped
+2026-07-02 09:34:50 | INFO     | websocket | WebSocket manager cleaned up
