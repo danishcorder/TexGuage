@@ -6,6 +6,7 @@
   <title>TexGauge - Carding</title>
   <link rel="stylesheet" href="../style.css">
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
   <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle Sidebar">☰</button>
@@ -15,6 +16,7 @@
       <a href="../index.html" class="logo">TexGauge</a>
       <nav>
         <a href="carding.html" class="active">⚙️ Carding</a>
+        <a href="comber.html">🔩 Comber</a>
         <a href="breaker.html">🔧 Breaker Draw Frame</a>
         <a href="finisher.html">🛠️ Finisher Draw Frame</a>
         <a href="simplex.html">🧵 Simplex</a>
@@ -27,12 +29,26 @@
       <header class="page-header">
         <div>
           <h1>⚙️ Carding - Data Entry</h1>
-         
+          
         </div>
       </header>
 
-     
-    
+      <!-- Scale Connection Status Panel -->
+      <section class="card scale-status-card">
+        <div class="scale-status-header">
+          <h3>⚖️ Scale Status</h3>
+          <div class="scale-status-indicator" id="scaleStatusIndicator">
+            <span class="status-dot disconnected"></span>
+            <span class="status-text" id="scaleStatusText">DISCONNECTED</span>
+          </div>
+        </div>
+        <div class="scale-status-details">
+          <div class="scale-port-info" id="scalePortInfo" style="display:none;">
+            <span id="scalePortText"></span>
+          </div>
+          <button id="scaleConnectBtn" class="primary">🔌 Connect Scale</button>
+        </div>
+      </section>
 
       <section class="card entry-card">
         <h3 style="margin-bottom:12px;">📋 Basic Information</h3>
@@ -70,7 +86,13 @@
               <option value="10">10</option>
             </select>
           </label>
-          <label>📏 Length of Sample
+          <label>📏 Length Unit
+            <select id="lengthUnit">
+              <option value="yard">Yard</option>
+              <option value="meter">Meter</option>
+            </select>
+          </label>
+          <label id="yardLabel">📏 Length of Sample (Yards)
             <select id="sampleLength">
               <option value="1">1 Yard</option>
               <option value="2">2 Yards</option>
@@ -84,7 +106,20 @@
               <option value="10">10 Yards</option>
             </select>
           </label>
-          <label> Yard → Meter<span id="lengthDisplay" style="font-weight:600;color:var(--text-primary);padding:9px 0;">6 yd / 5.4864 m</span></label>
+          <label id="meterLabel" style="display:none;">📏 Length of Sample (Meters)
+            <select id="sampleLengthMeter">
+              <option value="0.5">0.5 Meters</option>
+              <option value="1">1 Meter</option>
+              <option value="2">2 Meters</option>
+              <option value="3">3 Meters</option>
+              <option value="5">5 Meters</option>
+              <option value="10">10 Meters</option>
+              <option value="20">20 Meters</option>
+              <option value="50">50 Meters</option>
+              <option value="100">100 Meters</option>
+            </select>
+          </label>
+          <label>Yard → Meter<span id="lengthDisplay" style="font-weight:600;color:var(--text-primary);padding:9px 0;">6 yd / 5.4864 m</span></label>
           <label> Meter → Yard<span id="lengthDisplayMeter" style="font-weight:600;color:var(--text-primary);padding:9px 0;">5.4864 m / 6.0000 yd</span></label>
          
           <label>🎯 Target Weight (g)<input id="maxWeight" type="number" step="0.01" placeholder="100"></label>
@@ -93,23 +128,83 @@
         </div>
 
         <h3 style="margin-top:20px; margin-bottom:12px;">⚖️ Sample Weights <span style="font-weight:400; color:var(--text-muted); font-size:0.85rem;">(Enter at least 2 - leave others empty if not needed)</span></h3>
-        <div class="form-grid sample-grid">
-          <label>Sample 1<input id="s1" type="number" step="0.01" placeholder="0.00"></label>
-          <label>Sample 2<input id="s2" type="number" step="0.01" placeholder="0.00"></label>
-          <label>Sample 3<input id="s3" type="number" step="0.01" placeholder="0.00"></label>
-          <label>Sample 4<input id="s4" type="number" step="0.01" placeholder="0.00"></label>
-          <label>Sample 5<input id="s5" type="number" step="0.01" placeholder="0.00"></label>
-          <label>Sample 6<input id="s6" type="number" step="0.01" placeholder="0.00"></label>
-          <label>Sample 7<input id="s7" type="number" step="0.01" placeholder="0.00"></label>
-          <label>Sample 8<input id="s8" type="number" step="0.01" placeholder="0.00"></label>
-          <label>Sample 9<input id="s9" type="number" step="0.01" placeholder="0.00"></label>
-          <label>Sample 10<input id="s10" type="number" step="0.01" placeholder="0.00"></label>
+        <div class="form-grid sample-grid" id="sampleGrid">
+          <div class="sample-input-group" data-sample-number="1">
+            <label>Sample 1<input id="s1" type="number" step="0.01" placeholder="0.00" readonly></label>
+            <div class="sample-buttons">
+              <button class="sample-btn add-weight-btn" data-sample="s1">⚖️ Add Weight</button>
+              <button class="sample-btn start-stop-btn" data-sample="s1">▶️ Start</button>
+            </div>
+          </div>
+          <div class="sample-input-group" data-sample-number="2">
+            <label>Sample 2<input id="s2" type="number" step="0.01" placeholder="0.00" readonly></label>
+            <div class="sample-buttons">
+              <button class="sample-btn add-weight-btn" data-sample="s2">⚖️ Add Weight</button>
+              <button class="sample-btn start-stop-btn" data-sample="s2">▶️ Start</button>
+            </div>
+          </div>
+          <div class="sample-input-group" data-sample-number="3">
+            <label>Sample 3<input id="s3" type="number" step="0.01" placeholder="0.00" readonly></label>
+            <div class="sample-buttons">
+              <button class="sample-btn add-weight-btn" data-sample="s3">⚖️ Add Weight</button>
+              <button class="sample-btn start-stop-btn" data-sample="s3">▶️ Start</button>
+            </div>
+          </div>
+          <div class="sample-input-group" data-sample-number="4">
+            <label>Sample 4<input id="s4" type="number" step="0.01" placeholder="0.00" readonly></label>
+            <div class="sample-buttons">
+              <button class="sample-btn add-weight-btn" data-sample="s4">⚖️ Add Weight</button>
+              <button class="sample-btn start-stop-btn" data-sample="s4">▶️ Start</button>
+            </div>
+          </div>
+          <div class="sample-input-group" data-sample-number="5">
+            <label>Sample 5<input id="s5" type="number" step="0.01" placeholder="0.00" readonly></label>
+            <div class="sample-buttons">
+              <button class="sample-btn add-weight-btn" data-sample="s5">⚖️ Add Weight</button>
+              <button class="sample-btn start-stop-btn" data-sample="s5">▶️ Start</button>
+            </div>
+          </div>
+          <div class="sample-input-group" data-sample-number="6">
+            <label>Sample 6<input id="s6" type="number" step="0.01" placeholder="0.00" readonly></label>
+            <div class="sample-buttons">
+              <button class="sample-btn add-weight-btn" data-sample="s6">⚖️ Add Weight</button>
+              <button class="sample-btn start-stop-btn" data-sample="s6">▶️ Start</button>
+            </div>
+          </div>
+          <div class="sample-input-group" data-sample-number="7">
+            <label>Sample 7<input id="s7" type="number" step="0.01" placeholder="0.00" readonly></label>
+            <div class="sample-buttons">
+              <button class="sample-btn add-weight-btn" data-sample="s7">⚖️ Add Weight</button>
+              <button class="sample-btn start-stop-btn" data-sample="s7">▶️ Start</button>
+            </div>
+          </div>
+          <div class="sample-input-group" data-sample-number="8">
+            <label>Sample 8<input id="s8" type="number" step="0.01" placeholder="0.00" readonly></label>
+            <div class="sample-buttons">
+              <button class="sample-btn add-weight-btn" data-sample="s8">⚖️ Add Weight</button>
+              <button class="sample-btn start-stop-btn" data-sample="s8">▶️ Start</button>
+            </div>
+          </div>
+          <div class="sample-input-group" data-sample-number="9">
+            <label>Sample 9<input id="s9" type="number" step="0.01" placeholder="0.00" readonly></label>
+            <div class="sample-buttons">
+              <button class="sample-btn add-weight-btn" data-sample="s9">⚖️ Add Weight</button>
+              <button class="sample-btn start-stop-btn" data-sample="s9">▶️ Start</button>
+            </div>
+          </div>
+          <div class="sample-input-group" data-sample-number="10">
+            <label>Sample 10<input id="s10" type="number" step="0.01" placeholder="0.00" readonly></label>
+            <div class="sample-buttons">
+              <button class="sample-btn add-weight-btn" data-sample="s10">⚖️ Add Weight</button>
+              <button class="sample-btn start-stop-btn" data-sample="s10">▶️ Start</button>
+            </div>
+          </div>
         </div>
 
         <!-- Calculation Results -->
         <div class="calc-row">
           <div>📐 <strong>Mean:</strong> <span id="avgWeight">0.00</span> <small>(2 dec)</small></div>
-          <div>📉 <strong>SD (Population):</strong> <span id="sdValue">0.000</span> <small>(3 dec)</small></div>
+          <div>📉 <strong>SD (Sample):</strong> <span id="sdValue">0.000</span> <small>(3 dec)</small></div>
           <div>📈 <strong>CV%:</strong> <span id="cvValue">0.00</span> <small>(2 dec)</small></div>
           <div>📊 <strong>G/Y%:</strong> <span id="gValue">0.00</span> <small>(2 dec)</small></div>
         </div>
@@ -120,8 +215,8 @@
         <!-- Action Buttons -->
         <div class="action-row">
           <button id="saveBtn" class="primary" disabled>💾 Save Record</button>
-          <button id="scaleBtn" class="secondary">📡 Connect Scale</button>
-          <button id="excelBtn" class="secondary">📥 Download Carding Report</button>
+          <button class="secondary" onclick="generateDepartmentPDF('Carding')">📄 Download PDF Report</button>
+          <button class="secondary" onclick="printDepartmentReport('Carding')">🖨️ Print Report</button>
           <button type="button" class="secondary" onclick="clearAllInputs()">🔄 Clear Form</button>
           <button type="button" class="secondary" onclick="clearAllRecords()" style="background:var(--danger-light);color:var(--danger);border-color:var(--danger);">🗑 Clear All Records</button>
         </div>
@@ -148,6 +243,21 @@
             <option>C11</option><option>C12</option><option>C13</option><option>C14</option><option>C15</option>
             <option>C16</option><option>C17</option><option>C18</option><option>C19</option><option>C20</option>
           </select>
+        </div>
+        <!-- Report Period Filters -->
+        <div class="filters-row" style="margin-top:8px;padding-top:10px;border-top:1px solid var(--border-color);">
+          <span style="font-weight:600;font-size:0.82rem;color:var(--text-muted);">📊 REPORT PERIOD:</span>
+          <select id="reportPeriod" title="Select report period">
+            <option value="all">All Records</option>
+            <option value="daily">Daily</option>
+            <option value="shift">Shift-wise</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+          </select>
+          <input id="periodDate" type="date" title="Select date for period" style="display:none;">
+          <input id="periodWeekStart" type="date" title="Week starting" style="display:none;">
+          <button class="secondary" onclick="generateFilteredPDF('Carding')" style="background:var(--accent);color:white;">📄 Generate Period Report</button>
+          <button class="secondary" onclick="printFilteredReport('Carding')">🖨️ Print Period Report</button>
         </div>
         <div class="table-wrapper">
           <table id="reportTable">
@@ -179,9 +289,307 @@
   <script src="../js/smartScale.js"></script>
   <script src="../js/dashboard.js"></script>
   <script src="../js/excelExport.js"></script>
+  <script src="../js/reports.js"></script>
   <script>
-    initAuth();
-    initializeDepartmentPage('Carding');
+    // Global variables for scale functionality
+    let currentWeight = 0.00;
+    let activeReadingSample = null;
+
+    // Report period selector handler
+    document.addEventListener('DOMContentLoaded', function() {
+      const periodSelect = document.getElementById('reportPeriod');
+      if (periodSelect) {
+        periodSelect.addEventListener('change', function() {
+          const periodDate = document.getElementById('periodDate');
+          const periodWeek = document.getElementById('periodWeekStart');
+          const val = this.value;
+          periodDate.style.display = (val === 'daily' || val === 'shift' || val === 'monthly') ? '' : 'none';
+          periodWeek.style.display = (val === 'weekly') ? '' : 'none';
+          if (val === 'daily' || val === 'shift') periodDate.type = 'date';
+          if (val === 'monthly') periodDate.type = 'month';
+        });
+      }
+      
+      // Length unit selector handler
+      const lengthUnit = document.getElementById('lengthUnit');
+      if (lengthUnit) {
+        lengthUnit.addEventListener('change', function() {
+          const yardLabel = document.getElementById('yardLabel');
+          const meterLabel = document.getElementById('meterLabel');
+          const val = this.value;
+          if (val === 'yard') {
+            yardLabel.style.display = '';
+            meterLabel.style.display = 'none';
+          } else {
+            yardLabel.style.display = 'none';
+            meterLabel.style.display = '';
+          }
+          updateLengthDisplay();
+        });
+      }
+
+      // Initialize scale functionality
+      initializeScaleControls();
+      
+      // Initialize sample visibility
+      updateSampleVisibility();
+    });
+
+    // Update sample input visibility based on "No of Samples" dropdown
+    function updateSampleVisibility() {
+      const noOfSamples = parseInt(document.getElementById('noOfSamples')?.value || 6);
+      const sampleGroups = document.querySelectorAll('.sample-input-group');
+      
+      sampleGroups.forEach(group => {
+        const sampleNumber = parseInt(group.getAttribute('data-sample-number'));
+        if (sampleNumber <= noOfSamples) {
+          group.style.display = 'flex';
+        } else {
+          group.style.display = 'none';
+        }
+      });
+    }
+
+    // Initialize scale controls
+    function initializeScaleControls() {
+      // Scale connect button
+      const scaleConnectBtn = document.getElementById('scaleConnectBtn');
+      if (scaleConnectBtn) {
+        scaleConnectBtn.addEventListener('click', async function() {
+          await toggleScaleConnection();
+        });
+      }
+
+      // Add Weight buttons
+      const addWeightButtons = document.querySelectorAll('.add-weight-btn');
+      addWeightButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const sampleId = this.getAttribute('data-sample');
+          addWeightToSample(sampleId);
+        });
+      });
+
+      // Start/Stop buttons
+      const startStopButtons = document.querySelectorAll('.start-stop-btn');
+      startStopButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const sampleId = this.getAttribute('data-sample');
+          toggleReadingForSample(sampleId, this);
+        });
+      });
+
+      // Set up scale weight callback
+      if (typeof ScaleManager !== 'undefined') {
+        ScaleManager.onWeightRead = function(weight) {
+          currentWeight = weight;
+          // If there's an active reading sample, auto-fill it
+          if (activeReadingSample) {
+            const input = document.getElementById(activeReadingSample);
+            if (input) {
+              input.value = weight.toFixed(2);
+              // Trigger calculation update
+              if (typeof refreshCalculations === 'function') {
+                refreshCalculations();
+              }
+            }
+          }
+        };
+      }
+    }
+
+    // Toggle scale connection
+    async function toggleScaleConnection() {
+      const scaleConnectBtn = document.getElementById('scaleConnectBtn');
+      const scaleStatusIndicator = document.getElementById('scaleStatusIndicator');
+      const scaleStatusText = document.getElementById('scaleStatusText');
+      const scalePortInfo = document.getElementById('scalePortInfo');
+      const scalePortText = document.getElementById('scalePortText');
+      const statusDot = scaleStatusIndicator.querySelector('.status-dot');
+
+      if (typeof ScaleManager === 'undefined') {
+        showAlert('Scale manager not initialized. Please refresh the page.', 'error');
+        return;
+      }
+
+      // If already connected, disconnect
+      if (ScaleManager.isConnected) {
+        console.log('Disconnecting scale...');
+        await ScaleManager.disconnect();
+        updateScaleUI(false, null);
+        scaleConnectBtn.textContent = '🔌 Connect Scale';
+        scaleConnectBtn.classList.remove('connected');
+        scalePortInfo.style.display = 'none';
+        showAlert('Scale disconnected', 'info');
+        return;
+      }
+
+      // Show loading state
+      scaleConnectBtn.disabled = true;
+      scaleConnectBtn.textContent = '⏳ Connecting...';
+
+      try {
+        console.log('Initiating scale connection...');
+        const result = await ScaleManager.connect();
+        console.log('Connection result:', result);
+
+        if (result.success && (result.mode === 'serial' || result.mode === 'backend')) {
+          // Scale connected successfully
+          console.log('Scale connected successfully');
+          
+          // Update UI immediately
+          updateScaleUI(true, result.portInfo);
+          scaleConnectBtn.textContent = '🔌 Disconnect Scale';
+          scaleConnectBtn.classList.add('connected');
+          
+          // Show port info
+          scalePortText.textContent = 'Connected (Serial Port)';
+          scalePortInfo.style.display = 'flex';
+          
+          showAlert('✅ Scale connected! Click "Start" button to begin reading weight.', 'success');
+        } else if (result.success && result.mode === 'disconnected') {
+          // Was disconnected
+          updateScaleUI(false, null);
+          scaleConnectBtn.textContent = '🔌 Connect Scale';
+          scaleConnectBtn.classList.remove('connected');
+        } else {
+          // Connection failed
+          console.error('Connection failed:', result.error);
+          updateScaleUI(false, null);
+          scaleConnectBtn.textContent = '🔌 Connect Scale';
+          scaleConnectBtn.classList.remove('connected');
+          showAlert('❌ Failed to connect: ' + result.error, 'error');
+        }
+      } catch (error) {
+        console.error('Error in toggleScaleConnection:', error);
+        updateScaleUI(false, null);
+        scaleConnectBtn.textContent = '🔌 Connect Scale';
+        scaleConnectBtn.classList.remove('connected');
+        showAlert('❌ Error: ' + error.message, 'error');
+      } finally {
+        scaleConnectBtn.disabled = false;
+      }
+    }
+
+    // Update scale UI based on connection status
+    function updateScaleUI(isConnected, portInfo) {
+      const scaleStatusIndicator = document.getElementById('scaleStatusIndicator');
+      const scaleStatusText = document.getElementById('scaleStatusText');
+      const statusDot = scaleStatusIndicator.querySelector('.status-dot');
+
+      if (isConnected) {
+        statusDot.classList.remove('disconnected');
+        statusDot.classList.add('connected');
+        scaleStatusText.classList.remove('disconnected');
+        scaleStatusText.classList.add('connected');
+        scaleStatusText.textContent = 'CONNECTED';
+      } else {
+        statusDot.classList.remove('connected');
+        statusDot.classList.add('disconnected');
+        scaleStatusText.classList.remove('connected');
+        scaleStatusText.classList.add('disconnected');
+        scaleStatusText.textContent = 'DISCONNECTED';
+        
+        // Hide port info
+        const scalePortInfo = document.getElementById('scalePortInfo');
+        if (scalePortInfo) {
+          scalePortInfo.style.display = 'none';
+        }
+        
+        // Stop any active reading
+        if (activeReadingSample) {
+          const activeBtn = document.querySelector(`.start-stop-btn[data-sample="${activeReadingSample}"]`);
+          if (activeBtn) {
+            stopReading(activeReadingSample, activeBtn);
+          }
+        }
+      }
+    }
+
+    // Add weight to sample input
+    function addWeightToSample(sampleId) {
+      if (typeof ScaleManager === 'undefined' || !ScaleManager.isConnected) {
+        showAlert('Please connect the scale first', 'warning');
+        return;
+      }
+
+      if (currentWeight <= 0) {
+        showAlert('No weight reading available. Place sample on scale.', 'warning');
+        return;
+      }
+
+      const input = document.getElementById(sampleId);
+      if (input) {
+        input.value = currentWeight.toFixed(2);
+        
+        // Trigger calculation update
+        if (typeof refreshCalculations === 'function') {
+          refreshCalculations();
+        }
+        
+        showAlert(`Weight ${currentWeight.toFixed(2)}g added to ${sampleId.toUpperCase()}`, 'success');
+      }
+    }
+
+    // Toggle reading for a sample
+    function toggleReadingForSample(sampleId, button) {
+      if (typeof ScaleManager === 'undefined' || !ScaleManager.isConnected) {
+        showAlert('Please connect the scale first', 'warning');
+        return;
+      }
+
+      if (activeReadingSample && activeReadingSample !== sampleId) {
+        // Stop previous reading
+        const prevBtn = document.querySelector(`.start-stop-btn[data-sample="${activeReadingSample}"]`);
+        if (prevBtn) {
+          stopReading(activeReadingSample, prevBtn);
+        }
+      }
+
+      if (button.classList.contains('reading')) {
+        // Stop reading
+        stopReading(sampleId, button);
+      } else {
+        // Start reading
+        startReading(sampleId, button);
+      }
+    }
+
+    // Start reading for a sample
+    function startReading(sampleId, button) {
+      if (typeof ScaleManager !== 'undefined') {
+        ScaleManager.startReading();
+      }
+      
+      activeReadingSample = sampleId;
+      button.classList.add('reading');
+      button.innerHTML = '⏸️ Stop';
+      
+      showAlert(`Reading started for ${sampleId.toUpperCase()}. Place sample on scale.`, 'info');
+    }
+
+    // Stop reading for a sample
+    function stopReading(sampleId, button) {
+      if (typeof ScaleManager !== 'undefined') {
+        ScaleManager.stopReading();
+      }
+      
+      if (activeReadingSample === sampleId) {
+        activeReadingSample = null;
+      }
+      
+      button.classList.remove('reading');
+      button.innerHTML = '▶️ Start';
+    }
+
+    // Helper function to show alerts (if alertSystem is available)
+    function showAlert(message, type) {
+      if (typeof showAlertMessage === 'function') {
+        showAlertMessage(message, type);
+      } else if (typeof alert === 'function') {
+        // Fallback to browser alert if custom alert not available
+        console.log(`[${type.toUpperCase()}] ${message}`);
+      }
+    }
   </script>
 </body>
 </html>

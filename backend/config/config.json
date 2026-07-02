@@ -1,0 +1,38 @@
+{
+  "serial": {
+    "port": null,
+    "baud_rate": 9600,
+    "data_bits": 8,
+    "stop_bits": 1,
+    "parity": "N",
+    "timeout": 2.0,
+    "auto_reconnect": true,
+    "reconnect_interval": 3.0,
+    "max_retries": 10,
+    "exponential_backoff": true
+  },
+  "scale": {
+    "brand": "generic",
+    "units": "grams",
+    "weight_min": 0.1,
+    "weight_max": 1000.0,
+    "stable_threshold": 0.05,
+    "read_interval": 0.05
+  },
+  "websocket": {
+    "heartbeat_interval": 5.0,
+    "broadcast_interval": 0.05
+  },
+  "logging": {
+    "level": "INFO",
+    "max_bytes": 10485760,
+    "backup_count": 10,
+    "format": "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
+  },
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8000,
+    "reload": false,
+    "cors_origins": ["*"]
+  }
+}

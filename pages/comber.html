@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TexGauge - Simplex</title>
+  <title>TexGauge - Comber</title>
   <link rel="stylesheet" href="../style.css">
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -16,10 +16,10 @@
       <a href="../index.html" class="logo">TexGauge</a>
       <nav>
         <a href="carding.html">⚙️ Carding</a>
-        <a href="comber.html">🔩 Comber</a>
+        <a href="comber.html" class="active">🔩 Comber</a>
         <a href="breaker.html">🔧 Breaker Draw Frame</a>
         <a href="finisher.html">🛠️ Finisher Draw Frame</a>
-        <a href="simplex.html" class="active">🧵 Simplex</a>
+        <a href="simplex.html">🧵 Simplex</a>
         <a href="../index.html">📊 Dashboard</a>
       </nav>
       <button id="themeToggle">🌙 Dark Mode</button>
@@ -28,7 +28,7 @@
     <main>
       <header class="page-header">
         <div>
-          <h1>🧵 Simplex - Data Entry</h1>
+          <h1>🔩 Comber - Data Entry</h1>
         </div>
       </header>
 
@@ -38,16 +38,18 @@
           <label>📅 Date<input id="date" type="date"></label>
           <label>⏰ Shift
             <select id="shift">
-              <option value="Day"> A (5AM - 1PM)</option>
+              <option value="Day">A (5AM - 1PM)</option>
               <option value="Night">B (1PM - 10PM)</option>
               <option value="Night">C (10PM - 5AM)</option>
             </select>
           </label>
-          <label style="grid-column:span 2;">🏷️ HR Group
-            <div id="hrGroupContainer" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;padding:6px 0;"></div>
-          </label>
-          <label>🔢 Machine
-            <select id="machine"></select>
+          <label>🔢 Machine Number
+            <select id="machine">
+              <option value="CB1">CB1</option><option value="CB2">CB2</option><option value="CB3">CB3</option>
+              <option value="CB4">CB4</option><option value="CB5">CB5</option><option value="CB6">CB6</option>
+              <option value="CB7">CB7</option><option value="CB8">CB8</option><option value="CB9">CB9</option>
+              <option value="CB10">CB10</option><option value="CB11">CB11</option><option value="CB12">CB12</option>
+            </select>
           </label>
           <label>👤 Operator Name<input id="operator" type="text" placeholder="e.g. Muhammad Ali"></label>
           <label>🔢 No of Samples
@@ -57,27 +59,35 @@
               <option value="4">4</option>
               <option value="5">5</option>
               <option value="6" selected>6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
             </select>
           </label>
-          <label>📏 Length Unit
-            <select id="lengthUnit">
+          <label>📐 Length Unit
+            <select id="unitType" onchange="toggleUnitSystem()">
               <option value="yard">Yard</option>
               <option value="meter">Meter</option>
             </select>
           </label>
-          <label id="yardLabel">📏 Sample Length (Yards)
-            <select id="sampleLength">
+          <label id="sampleLengthYardLabel">📏 Length of Sample (Yards)
+            <select id="sampleLengthYard">
               <option value="1">1 Yard</option>
               <option value="2">2 Yards</option>
               <option value="3">3 Yards</option>
               <option value="4">4 Yards</option>
               <option value="5">5 Yards</option>
               <option value="6" selected>6 Yards</option>
+              <option value="7">7 Yards</option>
+              <option value="8">8 Yards</option>
+              <option value="9">9 Yards</option>
+              <option value="10">10 Yards</option>
             </select>
           </label>
-          <label id="meterLabel" style="display:none;">📏 Sample Length (Meters)
+          <label id="sampleLengthMeterLabel" style="display:none;">📏 Length of Sample (Meters)
             <select id="sampleLengthMeter">
-              <option value="0.5">0.5 Meters</option>
+              <option value="0.5">0.5 Meter</option>
               <option value="1">1 Meter</option>
               <option value="2">2 Meters</option>
               <option value="3">3 Meters</option>
@@ -88,33 +98,34 @@
               <option value="100">100 Meters</option>
             </select>
           </label>
-          <label>📏 Yd → M<span id="lengthDisplay" style="font-weight:600;color:var(--text-primary);padding:9px 0;">6 yd / 5.4864 m</span></label>
-          <label>📏 M → Yd<span id="lengthDisplayMeter" style="font-weight:600;color:var(--text-primary);padding:9px 0;">5.4864 m / 6.0000 yd</span></label>
-          <label style="background:var(--accent-light);border-radius:var(--radius-sm);padding:4px 10px;">🔢 HR <span id="hrDisplay" style="font-weight:700;color:var(--accent);font-size:1.1rem;">0.59</span></label>
-          <label style="background:var(--accent-light);border-radius:var(--radius-sm);padding:4px 10px;">⚖️ Min Weight (g)<span id="minWeightDisplay" style="font-weight:700;color:var(--text-primary);font-size:1rem;padding:4px 0;">5.45</span>
-            <input id="minWeight" type="hidden">
-          </label>
-          <label style="background:var(--accent-light);border-radius:var(--radius-sm);padding:4px 10px;">⚖️ Max Weight (g)<span id="maxWeightDisplay" style="font-weight:700;color:var(--text-primary);font-size:1rem;padding:4px 0;">5.58</span>
-            <input id="maxWeight" type="hidden">
-          </label>
+          <input id="sampleLength" type="hidden" value="6">
+          <label>Yard → Meter<span id="lengthDisplay" style="font-weight:600;color:var(--text-primary);padding:9px 0;">6 yd / 5.4864 m</span></label>
+          <label>Meter → Yard<span id="lengthDisplayMeter" style="font-weight:600;color:var(--text-primary);padding:9px 0;">5.4864 m / 6.0000 yd</span></label>
+          <label>🎯 Target Weight (g)<input id="maxWeight" type="number" step="0.01" placeholder="100"></label>
+          <label>G% Min<input id="gMin" type="number" step="0.1" placeholder="78.5" value="78.5"></label>
+          <label>G% Max<input id="gMax" type="number" step="0.1" placeholder="81.5" value="81.5"></label>
         </div>
 
-        <h3 style="margin-top:20px; margin-bottom:12px;">🧶 Sample Weights <span style="font-weight:400; color:var(--text-muted); font-size:0.85rem;">(Enter at least 2)</span></h3>
-        <div class="form-grid sample-grid" id="sampleGrid" style="grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));">
+        <h3 style="margin-top:20px; margin-bottom:12px;">⚖️ Sample Weights <span style="font-weight:400; color:var(--text-muted); font-size:0.85rem;">(Enter at least 2 - leave others empty if not needed)</span></h3>
+        <div class="form-grid sample-grid">
           <label>Sample 1<input id="s1" type="number" step="0.01" placeholder="0.00"></label>
           <label>Sample 2<input id="s2" type="number" step="0.01" placeholder="0.00"></label>
           <label>Sample 3<input id="s3" type="number" step="0.01" placeholder="0.00"></label>
           <label>Sample 4<input id="s4" type="number" step="0.01" placeholder="0.00"></label>
           <label>Sample 5<input id="s5" type="number" step="0.01" placeholder="0.00"></label>
           <label>Sample 6<input id="s6" type="number" step="0.01" placeholder="0.00"></label>
+          <label>Sample 7<input id="s7" type="number" step="0.01" placeholder="0.00"></label>
+          <label>Sample 8<input id="s8" type="number" step="0.01" placeholder="0.00"></label>
+          <label>Sample 9<input id="s9" type="number" step="0.01" placeholder="0.00"></label>
+          <label>Sample 10<input id="s10" type="number" step="0.01" placeholder="0.00"></label>
         </div>
 
         <!-- Calculation Results -->
         <div class="calc-row">
-          <div>📐 <strong>Mean:</strong> <span id="avgWeight">0.00</span></div>
-          <div>📉 <strong>SD (Sample):</strong> <span id="sdValue">0.000</span></div>
-          <div>📈 <strong>CV%:</strong> <span id="cvValue">0.00</span></div>
-          <div>📏 <strong>Hank:</strong> <span id="gValue">0.000</span></div>
+          <div>📐 <strong>Mean:</strong> <span id="avgWeight">0.00</span> <small>(2 dec)</small></div>
+          <div>📉 <strong>SD (Sample):</strong> <span id="sdValue">0.000</span> <small>(3 dec)</small></div>
+          <div>📈 <strong>CV%:</strong> <span id="cvValue">0.00</span> <small>(2 dec)</small></div>
+          <div>📊 <strong>G/Y%:</strong> <span id="gValue">0.00</span> <small>(2 dec)</small></div>
         </div>
 
         <!-- Status Message -->
@@ -123,26 +134,33 @@
         <!-- Action Buttons -->
         <div class="action-row">
           <button id="saveBtn" class="primary" disabled>💾 Save Record</button>
-          <button class="secondary" onclick="generateDepartmentPDF('Simplex')">📄 Download PDF Report</button>
-          <button class="secondary" onclick="printDepartmentReport('Simplex')">🖨️ Print Report</button>
+          <button id="pdfBtn" class="secondary" onclick="generateDepartmentPDF('Comber')">📄 Download PDF Report</button>
+          <button id="printBtn" class="secondary" onclick="printDepartmentReport('Comber')">🖨️ Print Report</button>
           <button type="button" class="secondary" onclick="clearAllInputs()">🔄 Clear Form</button>
           <button type="button" class="secondary" onclick="clearAllRecords()" style="background:var(--danger-light);color:var(--danger);border-color:var(--danger);">🗑 Clear All Records</button>
         </div>
       </section>
 
-      <!-- Report Table -->
+      <!-- Report & Filters Section -->
       <section class="card report-card">
-        <h2>📋 Simplex Report</h2>
+        <h2>📋 Comber Report</h2>
         <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px;">
           Search, filter by date/shift/machine, or click column headers to sort.
         </p>
         <div class="filters-row">
           <input id="searchText" type="search" placeholder="🔍 Search by operator, machine...">
           <input id="filterDate" type="date" title="Filter by date">
-          <select id="filterShift" title="Filter by shift">
+          <select id="filterShift" title="Filter by shift"> 
             <option value="">All Shifts</option>
-            <option value="Day"> A (5AM - 1PM)</option>
+            <option value="Day">A (5AM - 1PM)</option>
             <option value="Night">B (1PM - 10PM)</option>
+            <option value="Night">C (10PM - 5AM)</option>
+          </select>
+          <select id="filterMachine" title="Filter by machine">
+            <option value="">All Machines</option>
+            <option>CB1</option><option>CB2</option><option>CB3</option><option>CB4</option>
+            <option>CB5</option><option>CB6</option><option>CB7</option><option>CB8</option>
+            <option>CB9</option><option>CB10</option><option>CB11</option><option>CB12</option>
           </select>
         </div>
         <!-- Report Period Filters -->
@@ -157,8 +175,8 @@
           </select>
           <input id="periodDate" type="date" title="Select date for period" style="display:none;">
           <input id="periodWeekStart" type="date" title="Week starting" style="display:none;">
-          <button class="secondary" onclick="generateFilteredPDF('Simplex')" style="background:var(--accent);color:white;">📄 Generate Period Report</button>
-          <button class="secondary" onclick="printFilteredReport('Simplex')">🖨️ Print Period Report</button>
+          <button class="secondary" onclick="generateFilteredPDF('Comber')" style="background:var(--accent);color:white;">📄 Generate Period Report</button>
+          <button class="secondary" onclick="printFilteredReport('Comber')">🖨️ Print Period Report</button>
         </div>
         <div class="table-wrapper">
           <table id="reportTable">
@@ -168,12 +186,12 @@
                 <th onclick="sortTable(1)">⏰ Shift</th>
                 <th onclick="sortTable(2)">🔢 Machine</th>
                 <th>👤 Operator</th>
-                <th>🔢 S</th>
-                <th onclick="sortTable(5)">📐 Mean</th>
-                <th onclick="sortTable(6)">📈 CV%</th>
-                <th onclick="sortTable(7)">📏 Hank</th>
+                <th>⚖️ Samples</th>
+                <th onclick="sortTable(5)">📐 Average</th>
+                <th>📉 Std Dev</th>
+                <th onclick="sortTable(7)">📈 CV%</th>
+                <th onclick="sortTable(8)">📊 G%</th>
                 <th>✅ Status</th>
-                <th>🗑</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -187,12 +205,63 @@
   <script src="../js/calculations.js"></script>
   <script src="../js/validation.js"></script>
   <script src="../js/alertSystem.js"></script>
+  <script src="../js/smartScale.js"></script>
   <script src="../js/dashboard.js"></script>
   <script src="../js/excelExport.js"></script>
   <script src="../js/reports.js"></script>
-  <script src="../js/simplex.js"></script>
   <script>
+    // Comber-specific unit toggle
+    function toggleUnitSystem() {
+      const unitType = document.getElementById('unitType').value;
+      const yardLabel = document.getElementById('sampleLengthYardLabel');
+      const meterLabel = document.getElementById('sampleLengthMeterLabel');
+      const hiddenInput = document.getElementById('sampleLength');
+
+      if (unitType === 'yard') {
+        yardLabel.style.display = '';
+        meterLabel.style.display = 'none';
+        const yardVal = parseFloat(document.getElementById('sampleLengthYard').value);
+        hiddenInput.value = yardVal;
+        updateComberLengthDisplay();
+      } else {
+        yardLabel.style.display = 'none';
+        meterLabel.style.display = '';
+        const meterVal = parseFloat(document.getElementById('sampleLengthMeter').value);
+        // Convert meter to yard for G/Y% calculation
+        const yardEquiv = meterVal * 1.09361;
+        hiddenInput.value = yardEquiv.toFixed(4);
+        updateComberLengthDisplay();
+      }
+      refreshCalculations();
+    }
+
+    function updateComberLengthDisplay() {
+      const unitType = document.getElementById('unitType').value;
+      let yards, meters;
+      
+      if (unitType === 'yard') {
+        yards = parseFloat(document.getElementById('sampleLengthYard').value);
+        meters = yardsToMeters(yards);
+      } else {
+        meters = parseFloat(document.getElementById('sampleLengthMeter').value);
+        yards = meters * 1.09361;
+      }
+
+      document.getElementById('lengthDisplay').textContent = yards.toFixed(4) + ' yd / ' + meters.toFixed(4) + ' m';
+      document.getElementById('lengthDisplayMeter').textContent = meters.toFixed(4) + ' m / ' + yards.toFixed(4) + ' yd';
+
+      // Update hidden sample length
+      document.getElementById('sampleLength').value = yards.toFixed(4);
+    }
+
+    // Add listeners for unit system
     document.addEventListener('DOMContentLoaded', function() {
+      const yardSelect = document.getElementById('sampleLengthYard');
+      const meterSelect = document.getElementById('sampleLengthMeter');
+      if (yardSelect) yardSelect.addEventListener('change', toggleUnitSystem);
+      if (meterSelect) meterSelect.addEventListener('change', toggleUnitSystem);
+
+      // Report period selector
       const periodSelect = document.getElementById('reportPeriod');
       if (periodSelect) {
         periodSelect.addEventListener('change', function() {
@@ -205,27 +274,10 @@
           if (val === 'monthly') periodDate.type = 'month';
         });
       }
-      
-      // Length unit selector handler
-      const lengthUnit = document.getElementById('lengthUnit');
-      if (lengthUnit) {
-        lengthUnit.addEventListener('change', function() {
-          const yardLabel = document.getElementById('yardLabel');
-          const meterLabel = document.getElementById('meterLabel');
-          const val = this.value;
-          if (val === 'yard') {
-            yardLabel.style.display = '';
-            meterLabel.style.display = 'none';
-          } else {
-            yardLabel.style.display = 'none';
-            meterLabel.style.display = '';
-          }
-          updateLengthDisplay();
-        });
-      }
     });
+
     initAuth();
-    initSimplexPage();
+    initializeDepartmentPage('Comber');
   </script>
 </body>
 </html>

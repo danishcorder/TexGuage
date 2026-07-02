@@ -53,7 +53,9 @@ const LiveSimulation = {
   },
 
   generateData() {
-    const dept = this.departments[Math.floor(Math.random() * this.departments.length)];
+    // Exclude Carding from simulation - Carding uses real scale only
+    const availableDepts = this.departments.filter(d => d !== 'Carding');
+    const dept = availableDepts[Math.floor(Math.random() * availableDepts.length)];
     const machines = this.machines[dept];
     const machine = machines[Math.floor(Math.random() * machines.length)];
     const target = this.targets[dept];

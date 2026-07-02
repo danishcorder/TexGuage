@@ -1,0 +1,96 @@
+2026-07-01 22:12:20 | INFO     | serial_service | SerialScaleService initialized
+2026-07-01 22:12:57 | INFO     | serial_service | SerialScaleService initialized
+2026-07-01 22:12:57 | INFO     | serial_service | Cleaning up serial service
+2026-07-01 22:12:57 | INFO     | serial_service | Serial service cleaned up
+2026-07-01 22:14:32 | INFO     | serial_service | SerialScaleService initialized
+2026-07-01 22:18:58 | INFO     | serial_service | SerialScaleService initialized
+2026-07-01 22:21:35 | INFO     | serial_service | SerialScaleService initialized
+2026-07-01 22:25:04 | WARNING  | serial_service | No ports found during auto-detect
+2026-07-01 22:25:16 | WARNING  | serial_service | No ports found during auto-detect
+2026-07-01 22:25:18 | WARNING  | serial_service | No ports found during auto-detect
+2026-07-01 22:26:08 | WARNING  | serial_service | No ports found during auto-detect
+2026-07-01 22:26:09 | WARNING  | serial_service | No ports found during auto-detect
+2026-07-01 22:26:11 | WARNING  | serial_service | No ports found during auto-detect
+2026-07-01 22:26:12 | WARNING  | serial_service | No ports found during auto-detect
+2026-07-01 22:26:13 | WARNING  | serial_service | No ports found during auto-detect
+2026-07-01 22:31:26 | WARNING  | serial_service | No ports found during auto-detect
+2026-07-01 22:31:50 | WARNING  | serial_service | No ports found during auto-detect
+2026-07-01 22:32:49 | WARNING  | serial_service | No ports found during auto-detect
+2026-07-01 22:33:30 | WARNING  | serial_service | No ports found during auto-detect
+2026-07-02 08:34:06 | INFO     | serial_service | SerialScaleService initialized
+2026-07-02 08:34:19 | INFO     | serial_service | SerialScaleService initialized
+2026-07-02 08:34:19 | INFO     | serial_service | Cleaning up serial service
+2026-07-02 08:34:19 | INFO     | serial_service | Serial service cleaned up
+2026-07-02 08:37:12 | INFO     | serial_service | SerialScaleService initialized
+2026-07-02 08:37:35 | INFO     | serial_service | SerialScaleService initialized
+2026-07-02 08:37:35 | INFO     | serial_service | Cleaning up serial service
+2026-07-02 08:37:35 | INFO     | serial_service | Serial service cleaned up
+2026-07-02 08:39:25 | WARNING  | serial_service | No ports found during auto-detect
+2026-07-02 08:43:34 | INFO     | serial_service | Auto-detecting port from 1 available ports
+2026-07-02 08:43:34 | INFO     | serial_service | No scale data detected, using first port: COM4
+2026-07-02 08:43:34 | WARNING  | serial_service | Could not auto-detect baud rate for COM4, using 9600
+2026-07-02 08:43:34 | ERROR    | serial_service | Unexpected connection error: Not a valid parity: 'none'
+2026-07-02 08:50:46 | INFO     | serial_service | Auto-detecting port from 1 available ports
+2026-07-02 08:50:46 | INFO     | serial_service | No scale data detected, using first port: COM4
+2026-07-02 08:50:46 | WARNING  | serial_service | Could not auto-detect baud rate for COM4, using 9600
+2026-07-02 08:50:46 | ERROR    | serial_service | Unexpected connection error: Not a valid parity: 'none'
+2026-07-02 09:07:55 | INFO     | serial_service | SerialScaleService initialized
+2026-07-02 09:08:20 | INFO     | serial_service | SerialScaleService initialized
+2026-07-02 09:08:20 | INFO     | serial_service | Cleaning up serial service
+2026-07-02 09:08:20 | INFO     | serial_service | Serial service cleaned up
+2026-07-02 09:09:51 | INFO     | serial_service | SerialScaleService initialized
+2026-07-02 09:09:51 | INFO     | serial_service | Cleaning up serial service
+2026-07-02 09:09:51 | INFO     | serial_service | Serial service cleaned up
+2026-07-02 09:10:01 | INFO     | serial_service | SerialScaleService initialized
+2026-07-02 09:10:01 | INFO     | serial_service | Cleaning up serial service
+2026-07-02 09:10:01 | INFO     | serial_service | Serial service cleaned up
+2026-07-02 09:10:51 | INFO     | serial_service | Auto-detecting port from 1 available ports
+2026-07-02 09:10:51 | INFO     | serial_service | No scale data detected, using first port: COM4
+2026-07-02 09:10:51 | WARNING  | serial_service | Could not auto-detect baud rate for COM4, using 9600
+2026-07-02 09:10:51 | ERROR    | serial_service | Serial connection failed on COM4: could not open port 'COM4': OSError(22, 'A device which does not exist was specified.', None, 433)
+2026-07-02 09:11:49 | INFO     | serial_service | SerialScaleService initialized
+2026-07-02 09:11:49 | INFO     | serial_service | Cleaning up serial service
+2026-07-02 09:11:49 | INFO     | serial_service | Serial service cleaned up
+2026-07-02 09:15:36 | INFO     | serial_service | Auto-detecting port from 1 available ports
+2026-07-02 09:15:36 | INFO     | serial_service | No scale data detected, using first port: COM4
+2026-07-02 09:15:36 | WARNING  | serial_service | Could not auto-detect baud rate for COM4, using 9600
+2026-07-02 09:15:36 | ERROR    | serial_service | Serial connection failed on COM4: could not open port 'COM4': OSError(22, 'A device which does not exist was specified.', None, 433)
+2026-07-02 09:16:17 | INFO     | serial_service | SerialScaleService initialized
+2026-07-02 09:16:17 | INFO     | serial_service | Cleaning up serial service
+2026-07-02 09:16:17 | INFO     | serial_service | Serial service cleaned up
+2026-07-02 09:16:54 | INFO     | serial_service | Auto-detecting port from 1 available ports
+2026-07-02 09:16:54 | INFO     | serial_service | No scale data detected, using first port: COM4
+2026-07-02 09:16:54 | WARNING  | serial_service | Could not auto-detect baud rate for COM4, using 9600
+2026-07-02 09:16:54 | ERROR    | serial_service | Serial connection failed on COM4: could not open port 'COM4': OSError(22, 'A device which does not exist was specified.', None, 433)
+2026-07-02 09:18:48 | INFO     | serial_service | Auto-detecting port from 1 available ports
+2026-07-02 09:18:48 | INFO     | serial_service | No scale data detected, using first port: COM4
+2026-07-02 09:18:48 | WARNING  | serial_service | Could not auto-detect baud rate for COM4, using 9600
+2026-07-02 09:18:48 | ERROR    | serial_service | Serial connection failed on COM4: could not open port 'COM4': OSError(22, 'A device which does not exist was specified.', None, 433)
+2026-07-02 09:19:03 | INFO     | serial_service | Cleaning up serial service
+2026-07-02 09:19:03 | INFO     | serial_service | Serial service cleaned up
+2026-07-02 09:19:10 | INFO     | serial_service | SerialScaleService initialized
+2026-07-02 09:19:18 | INFO     | serial_service | Auto-detecting port from 1 available ports
+2026-07-02 09:19:18 | INFO     | serial_service | No scale data detected, using first port: COM4
+2026-07-02 09:19:18 | WARNING  | serial_service | Could not auto-detect baud rate for COM4, using 9600
+2026-07-02 09:19:18 | ERROR    | serial_service | Serial connection failed on COM4: could not open port 'COM4': OSError(22, 'A device which does not exist was specified.', None, 433)
+2026-07-02 09:19:59 | INFO     | serial_service | Auto-detecting port from 1 available ports
+2026-07-02 09:19:59 | INFO     | serial_service | No scale data detected, using first port: COM4
+2026-07-02 09:19:59 | WARNING  | serial_service | Could not auto-detect baud rate for COM4, using 9600
+2026-07-02 09:19:59 | ERROR    | serial_service | Serial connection failed on COM4: could not open port 'COM4': OSError(22, 'A device which does not exist was specified.', None, 433)
+2026-07-02 09:20:01 | INFO     | serial_service | Auto-detecting port from 1 available ports
+2026-07-02 09:20:01 | INFO     | serial_service | No scale data detected, using first port: COM4
+2026-07-02 09:20:01 | WARNING  | serial_service | Could not auto-detect baud rate for COM4, using 9600
+2026-07-02 09:20:01 | ERROR    | serial_service | Serial connection failed on COM4: could not open port 'COM4': OSError(22, 'A device which does not exist was specified.', None, 433)
+2026-07-02 09:22:02 | INFO     | serial_service | Auto-detecting port from 1 available ports
+2026-07-02 09:22:02 | INFO     | serial_service | No scale data detected, using first port: COM4
+2026-07-02 09:22:02 | WARNING  | serial_service | Could not auto-detect baud rate for COM4, using 9600
+2026-07-02 09:22:02 | ERROR    | serial_service | Serial connection failed on COM4: could not open port 'COM4': OSError(22, 'A device which does not exist was specified.', None, 433)
+2026-07-02 09:25:19 | INFO     | serial_service | Cleaning up serial service
+2026-07-02 09:25:19 | INFO     | serial_service | Serial service cleaned up
+2026-07-02 09:25:23 | INFO     | serial_service | SerialScaleService initialized
+2026-07-02 09:25:31 | INFO     | serial_service | Auto-detecting port from 1 available ports
+2026-07-02 09:25:31 | INFO     | serial_service | No scale data detected, using first port: COM3
+2026-07-02 09:25:31 | WARNING  | serial_service | Could not auto-detect baud rate for COM3, using 9600
+2026-07-02 09:25:31 | ERROR    | serial_service | Serial connection failed on COM3: could not open port 'COM3': OSError(22, 'A device which does not exist was specified.', None, 433)
+2026-07-02 09:34:50 | INFO     | serial_service | Cleaning up serial service
+2026-07-02 09:34:50 | INFO     | serial_service | Serial service cleaned up

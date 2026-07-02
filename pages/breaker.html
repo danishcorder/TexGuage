@@ -6,6 +6,7 @@
   <title>TexGauge - Breaker</title>
   <link rel="stylesheet" href="../style.css">
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
   <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle Sidebar">☰</button>
@@ -15,6 +16,7 @@
       <a href="../index.html" class="logo">TexGauge</a>
       <nav>
         <a href="carding.html">⚙️ Carding</a>
+        <a href="comber.html">🔩 Comber</a>
         <a href="breaker.html" class="active">🔧 Breaker Draw Frame</a>
         <a href="finisher.html">🛠️ Finisher Draw Frame</a>
         <a href="simplex.html">🧵 Simplex</a>
@@ -69,18 +71,37 @@
               <option value="10" selected>10</option>
             </select>
           </label>
-          <label>📏 Length of Sample
+          <label>📏 Length Unit
+            <select id="lengthUnit">
+              <option value="yard">Yard</option>
+              <option value="meter">Meter</option>
+            </select>
+          </label>
+          <label id="yardLabel">📏 Length of Sample (Yards)
             <select id="sampleLength">
               <option value="1">1 Yard</option>
               <option value="2">2 Yards</option>
               <option value="3">3 Yards</option>
               <option value="4">4 Yards</option>
               <option value="5">5 Yards</option>
-              <option value="6">6 Yards</option>
+              <option value="6" selected>6 Yards</option>
               <option value="7">7 Yard</option>
               <option value="8">8 Yards</option>
               <option value="9">9 Yards</option>
-              <option value="10" selected>10 Yards</option>
+              <option value="10">10 Yards</option>
+            </select>
+          </label>
+          <label id="meterLabel" style="display:none;">📏 Length of Sample (Meters)
+            <select id="sampleLengthMeter">
+              <option value="0.5">0.5 Meters</option>
+              <option value="1">1 Meter</option>
+              <option value="2">2 Meters</option>
+              <option value="3">3 Meters</option>
+              <option value="5">5 Meters</option>
+              <option value="10">10 Meters</option>
+              <option value="20">20 Meters</option>
+              <option value="50">50 Meters</option>
+              <option value="100">100 Meters</option>
             </select>
           </label>
           <label>Yard → Meter<span id="lengthDisplay" style="font-weight:600;color:var(--text-primary);padding:9px 0;">6 yd / 5.4864 m</span></label>
@@ -108,7 +129,7 @@
         <!-- Calculation Results -->
         <div class="calc-row">
           <div>📐 <strong>Mean:</strong> <span id="avgWeight">0.00</span> <small>(2 dec)</small></div>
-          <div>📉 <strong>SD (Population):</strong> <span id="sdValue">0.000</span> <small>(3 dec)</small></div>
+          <div>📉 <strong>SD (Sample):</strong> <span id="sdValue">0.000</span> <small>(3 dec)</small></div>
           <div>📈 <strong>CV%:</strong> <span id="cvValue">0.00</span> <small>(2 dec)</small></div>
           <div>📊 <strong>G/Y%:</strong> <span id="gValue">0.00</span> <small>(2 dec)</small></div>
         </div>
@@ -120,7 +141,8 @@
         <div class="action-row">
           <button id="saveBtn" class="primary" disabled>💾 Save Record</button>
           <button id="scaleBtn" class="secondary">📡 Connect Scale</button>
-          <button id="excelBtn" class="secondary">📥 Download Breaker Report</button>
+          <button class="secondary" onclick="generateDepartmentPDF('Breaker')">📄 Download PDF Report</button>
+          <button class="secondary" onclick="printDepartmentReport('Breaker')">🖨️ Print Report</button>
           <button type="button" class="secondary" onclick="clearAllInputs()">🔄 Clear Form</button>
           <button type="button" class="secondary" onclick="clearAllRecords()" style="background:var(--danger-light);color:var(--danger);border-color:var(--danger);">🗑 Clear All Records</button>
         </div>
@@ -147,6 +169,21 @@
             <option>B11</option><option>B12</option><option>B13</option><option>B14</option><option>B15</option>
             <option>B16</option><option>B17</option><option>B18</option><option>B19</option><option>B20</option>
           </select>
+        </div>
+        <!-- Report Period Filters -->
+        <div class="filters-row" style="margin-top:8px;padding-top:10px;border-top:1px solid var(--border-color);">
+          <span style="font-weight:600;font-size:0.82rem;color:var(--text-muted);">📊 REPORT PERIOD:</span>
+          <select id="reportPeriod" title="Select report period">
+            <option value="all">All Records</option>
+            <option value="daily">Daily</option>
+            <option value="shift">Shift-wise</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+          </select>
+          <input id="periodDate" type="date" title="Select date for period" style="display:none;">
+          <input id="periodWeekStart" type="date" title="Week starting" style="display:none;">
+          <button class="secondary" onclick="generateFilteredPDF('Breaker')" style="background:var(--accent);color:white;">📄 Generate Period Report</button>
+          <button class="secondary" onclick="printFilteredReport('Breaker')">🖨️ Print Period Report</button>
         </div>
         <div class="table-wrapper">
           <table id="reportTable">
@@ -178,7 +215,40 @@
   <script src="../js/smartScale.js"></script>
   <script src="../js/dashboard.js"></script>
   <script src="../js/excelExport.js"></script>
+  <script src="../js/reports.js"></script>
   <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const periodSelect = document.getElementById('reportPeriod');
+      if (periodSelect) {
+        periodSelect.addEventListener('change', function() {
+          const periodDate = document.getElementById('periodDate');
+          const periodWeek = document.getElementById('periodWeekStart');
+          const val = this.value;
+          periodDate.style.display = (val === 'daily' || val === 'shift' || val === 'monthly') ? '' : 'none';
+          periodWeek.style.display = (val === 'weekly') ? '' : 'none';
+          if (val === 'daily' || val === 'shift') periodDate.type = 'date';
+          if (val === 'monthly') periodDate.type = 'month';
+        });
+      }
+      
+      // Length unit selector handler
+      const lengthUnit = document.getElementById('lengthUnit');
+      if (lengthUnit) {
+        lengthUnit.addEventListener('change', function() {
+          const yardLabel = document.getElementById('yardLabel');
+          const meterLabel = document.getElementById('meterLabel');
+          const val = this.value;
+          if (val === 'yard') {
+            yardLabel.style.display = '';
+            meterLabel.style.display = 'none';
+          } else {
+            yardLabel.style.display = 'none';
+            meterLabel.style.display = '';
+          }
+          updateLengthDisplay();
+        });
+      }
+    });
     initAuth();
     initializeDepartmentPage('Breaker');
   </script>

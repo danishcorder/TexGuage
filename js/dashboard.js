@@ -113,13 +113,21 @@ function updateMachineWeightRange() {
 // Update length display in both units
 function updateLengthDisplay() {
   const lengthSelect = document.getElementById('sampleLength');
+  const lengthSelectMeter = document.getElementById('sampleLengthMeter');
+  const lengthUnit = document.getElementById('lengthUnit');
   const lengthDisplay = document.getElementById('lengthDisplay');
   const lengthDisplayMeter = document.getElementById('lengthDisplayMeter');
   
-  if (!lengthSelect) return;
+  let yards = 6;
+  let meters = 5.4864;
   
-  const yards = parseInt(lengthSelect.value);
-  const meters = yardsToMeters(yards);
+  if (lengthUnit && lengthUnit.value === 'meter' && lengthSelectMeter) {
+    meters = parseFloat(lengthSelectMeter.value);
+    yards = metersToYards(meters);
+  } else if (lengthSelect) {
+    yards = parseInt(lengthSelect.value);
+    meters = yardsToMeters(yards);
+  }
   
   if (lengthDisplay) {
     lengthDisplay.textContent = `${yards} yd / ${meters.toFixed(4)} m`;
@@ -258,7 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // =================== KPI UPDATE ===================
 function updateKPI() {
-  const depts = ['Carding', 'Breaker', 'Finisher', 'Simplex'];
+  const depts = ['Carding', 'Comber', 'Breaker', 'Finisher', 'Simplex'];
   let totalSamples = 0;
   let totalRejected = 0;
   let totalCv = 0;
@@ -304,8 +312,25 @@ function initializeDepartmentPage(department) {
   }
 
   const sampleLength = document.getElementById('sampleLength');
+  const sampleLengthMeter = document.getElementById('sampleLengthMeter');
+  const lengthUnit = document.getElementById('lengthUnit');
+  
   if (sampleLength) {
     sampleLength.addEventListener('change', () => {
+      updateLengthDisplay();
+      refreshCalculations();
+    });
+  }
+  
+  if (sampleLengthMeter) {
+    sampleLengthMeter.addEventListener('change', () => {
+      updateLengthDisplay();
+      refreshCalculations();
+    });
+  }
+  
+  if (lengthUnit) {
+    lengthUnit.addEventListener('change', () => {
       updateLengthDisplay();
       refreshCalculations();
     });
@@ -352,26 +377,13 @@ function initializeDepartmentPage(department) {
   document.getElementById('saveBtn')?.addEventListener('click', () => saveRecord(department, false));
   document.getElementById('excelBtn')?.addEventListener('click', () => exportDepartmentToExcel(department, loadRecords(department)));
 
-  // Scale connection
-  const scaleBtn = document.getElementById('scaleBtn');
-  if (scaleBtn) {
-    scaleBtn.addEventListener('click', async () => {
-      const result = await ScaleManager.connect();
-      scaleBtn.textContent = result.success ? '🔗 Scale Connected' : '❌ Scale Failed';
-      scaleBtn.style.background = result.success ? 'var(--success)' : 'var(--danger)';
-    });
-    ScaleManager.onWeightRead = (weight) => {
-      // Auto-fill first empty visible sample
-      const visibleInputs = getVisibleSampleInputs();
-      for (const input of visibleInputs) {
-        if (input && (input.value === '' || Number(input.value) === 0)) {
-          input.value = weight;
-          validateSampleInput(input);
-          input.dispatchEvent(new Event('input'));
-          break;
-        }
-      }
-    };
+  // Scale connection - Reset scale status on page load for all departments
+  if (typeof ScaleManager !== 'undefined') {
+    ScaleManager.isConnected = false;
+    ScaleManager.isReading = false;
+    ScaleManager.readLoopActive = false;
+    ScaleManager.port = null;
+    ScaleManager.reader = null;
   }
 
   // Filters
@@ -418,8 +430,25 @@ function initializeSimplexPage() {
   }
 
   const sampleLength = document.getElementById('sampleLength');
+  const sampleLengthMeter = document.getElementById('sampleLengthMeter');
+  const lengthUnit = document.getElementById('lengthUnit');
+  
   if (sampleLength) {
     sampleLength.addEventListener('change', () => {
+      updateLengthDisplay();
+      refreshCalculations();
+    });
+  }
+  
+  if (sampleLengthMeter) {
+    sampleLengthMeter.addEventListener('change', () => {
+      updateLengthDisplay();
+      refreshCalculations();
+    });
+  }
+  
+  if (lengthUnit) {
+    lengthUnit.addEventListener('change', () => {
       updateLengthDisplay();
       refreshCalculations();
     });
@@ -509,11 +538,11 @@ function refreshCalculations() {
   let gDisplay = '0.00';
   
   if (reportState.isSimplex) {
-    const lengthYards = parseInt(document.getElementById('sampleLength')?.value || 6);
+    const lengthYards = getLengthInYards();
     gValue = hankRovingValue(meanValue, lengthYards);
     gDisplay = roundHank(gValue);
   } else {
-    const sampleLengthYards = parseInt(document.getElementById('sampleLength')?.value || 6);
+    const sampleLengthYards = getLengthInYards();
     gValue = gyPercent(meanValue, sampleLengthYards);
     gDisplay = roundGY(gValue);
   }
@@ -585,10 +614,10 @@ function saveRecord(department, isSimplex) {
 
   let gValue = 0;
   if (isSimplex) {
-    const lengthYards = parseInt(document.getElementById('sampleLength')?.value || 6);
+    const lengthYards = getLengthInYards();
     gValue = hankRovingValue(meanValue, lengthYards);
   } else {
-    const sampleLengthYards = parseInt(document.getElementById('sampleLength')?.value || 6);
+    const sampleLengthYards = getLengthInYards();
     gValue = gyPercent(meanValue, sampleLengthYards);
   }
   
@@ -658,10 +687,24 @@ function clearInputs(isSimplex) {
   });
 }
 
+function getLengthInYards() {
+  const lengthUnit = document.getElementById('lengthUnit');
+  const sampleLength = document.getElementById('sampleLength');
+  const sampleLengthMeter = document.getElementById('sampleLengthMeter');
+  
+  if (lengthUnit && lengthUnit.value === 'meter' && sampleLengthMeter) {
+    const meters = parseFloat(sampleLengthMeter.value);
+    return metersToYards(meters);
+  } else if (sampleLength) {
+    return parseInt(sampleLength.value);
+  }
+  return 6;
+}
+
 function clearAllInputs() {
   document.querySelectorAll('.entry-card input, .entry-card select').forEach(el => {
     if (el.type === 'text' || el.type === 'number') {
-      if (['gMin','gMax','sampleLength'].includes(el.id)) return;
+      if (['gMin','gMax','sampleLength','sampleLengthMeter'].includes(el.id)) return;
       el.value = '';
     }
     if (el.tagName === 'SELECT') el.selectedIndex = 0;
@@ -699,7 +742,7 @@ function clearAllRecords() {
     return;
   }
   
-  const departments = ['Carding', 'Breaker', 'Finisher', 'Simplex'];
+  const departments = ['Carding', 'Comber', 'Breaker', 'Finisher', 'Simplex'];
   departments.forEach(dept => {
     localStorage.removeItem(getStorageKey(dept));
   });
@@ -786,7 +829,7 @@ function initializeDashboard() {
     if (event === 'data') {
       // Auto-refresh dashboard components
       const allRecords = {};
-      ['Carding','Breaker','Finisher','Simplex'].forEach(d => {
+      ['Carding','Comber','Breaker','Finisher','Simplex'].forEach(d => {
         const r = loadRecords(d);
         if (r.length > 0) allRecords[d] = r;
       });
@@ -799,7 +842,7 @@ function initializeDashboard() {
 
   // Initial load
   const allRecords = {};
-  ['Carding','Breaker','Finisher','Simplex'].forEach(d => {
+  ['Carding','Comber','Breaker','Finisher','Simplex'].forEach(d => {
     const r = loadRecords(d);
     if (r.length > 0) allRecords[d] = r;
   });
